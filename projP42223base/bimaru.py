@@ -2,7 +2,7 @@
 # Devem alterar as classes e funções neste ficheiro de acordo com as instruções do enunciado.
 # Além das funções e classes já definidas, podem acrescentar outras que considerem pertinentes.
 
-# Grupo 30
+# Grupo 30:
 # 103262 Duarte Marques
 # 102820 Bernardo Augusto
 
