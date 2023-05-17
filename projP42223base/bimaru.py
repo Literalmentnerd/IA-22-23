@@ -35,10 +35,11 @@ class BimaruState:
 
 class Board:
     """Representação interna de um tabuleiro de Bimaru."""
-    def __init__(self, list_linhas, list_colunas):
+    def __init__(self, list_linhas, list_colunas, list_clues):
         self.list_linhas=list_linhas
         self.list_colunas=list_colunas
         self.celulas= [['-' for _ in range(10)] for _ in range(10)]
+        self.lista_clues=list_clues
         
         
 
@@ -68,7 +69,7 @@ class Board:
         else:
             return (self.get_value(row, col-1), self.get_value(row, col+1))
     
-    'def clear_adj_pos(self, row, col, piece):'
+    
             
         
     def clear_row(self, row:int):
@@ -96,8 +97,23 @@ class Board:
             > from sys import stdin
             > line = stdin.readline().split()
         """
-        # TODO
-        pass
+        str_linhas=input()
+        row_numbers=[int(num) for num in str_linhas.split(' ')]
+        str_colunas=input()
+        column_numbers=[int(num) for num in str_colunas.split(' ')]
+        n_clues=(int(input))
+        clues=[]
+        while (n_clues>0):
+            clue_input=input()
+            clue_parts=clue_input.split()
+            clue_x=clue_parts[1]
+            clue_y=clue_parts[2]
+            clue_piece=clue_parts[3]
+            clue=(clue_x, clue_y, clue_piece)
+            clues.append(clue)
+            n_clues=n_clues-1
+        tabuleiro=Board(row_numbers, column_numbers, clues)
+        return tabuleiro
 
     # TODO: outros metodos da classe
 
@@ -105,7 +121,7 @@ class Board:
 class Bimaru(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        self.board=Board
+        self.board=board
 
     def actions(self, state: BimaruState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -141,23 +157,8 @@ class Bimaru(Problem):
 
 if __name__ == "__main__":
     # TODO:
+    board=Board.parse_instance()
     
-    str_linhas=input()
-    row_numbers=[int(num) for num in str_linhas.split(' ')]
-    str_colunas=input()
-    column_numbers=[int(num) for num in str_colunas.split(' ')]
-    n_clues=(int(input))
-    clues=[]
-    while (n_clues>0):
-        clue_input=input()
-        clue_parts=clue_input.split()
-        clue_x=clue_parts[1]
-        clue_y=clue_parts[2]
-        clue_piece=clue_parts[3]
-        clue=(clue_x, clue_y, clue_piece)
-        clues.append(clue)
-        n_clues=n_clues-1
-    tabuleiro=Board(row_numbers, column_numbers)
     
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
