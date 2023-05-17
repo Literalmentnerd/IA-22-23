@@ -5,7 +5,7 @@
 # Grupo 30:
 # 103262 Duarte Marques
 # 102820 Bernardo Augusto
-
+import numpy
 import sys
 from search import (
     Problem,
@@ -18,6 +18,7 @@ from search import (
 )
 
 
+
 class BimaruState:
     state_id = 0
 
@@ -28,7 +29,7 @@ class BimaruState:
 
     def __lt__(self, other):
         return self.id < other.id
-
+    
     # TODO: outros metodos da classe
 
 
@@ -67,7 +68,9 @@ class Board:
         else:
             return (self.get_value(row, col-1), self.get_value(row, col+1))
     
-    
+    'def clear_adj_pos(self, row, col, piece):'
+            
+        
     def clear_row(self, row:int):
         for i in range(10):
             if not self.get_value(row, i).isalpha():
@@ -78,6 +81,10 @@ class Board:
             if not self.get_value(i, col).isalpha():
                 self.celulas[i][column]='.'
 
+    def set_piece(self, row:int, column:int ,piece):
+        self.celulas[row][column]=piece
+    
+        
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -98,8 +105,7 @@ class Board:
 class Bimaru(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO
-        pass
+        self.board=Board
 
     def actions(self, state: BimaruState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -126,20 +132,32 @@ class Bimaru(Problem):
         """Função heuristica utilizada para a procura A*."""
         # TODO
         pass
+    
 
-    # TODO: outros metodos da classe
-
+    def set_clues(self, lista_clues):
+        for clue in lista_clues:
+            self.board.set_piece(clue[0], clue[1], clue[2])
+        
 
 if __name__ == "__main__":
     # TODO:
+    
     str_linhas=input()
     row_numbers=[int(num) for num in str_linhas.split(' ')]
     str_colunas=input()
     column_numbers=[int(num) for num in str_colunas.split(' ')]
     n_clues=(int(input))
+    clues=[]
     while (n_clues>0):
-        input()
+        clue_input=input()
+        clue_parts=clue_input.split()
+        clue_x=clue_parts[1]
+        clue_y=clue_parts[2]
+        clue_piece=clue_parts[3]
+        clue=(clue_x, clue_y, clue_piece)
+        clues.append(clue)
         n_clues=n_clues-1
+    tabuleiro=Board(row_numbers, column_numbers)
     
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
