@@ -150,11 +150,187 @@ class Bimaru(Problem):
         pass
     
 
+    
+
+    def clear_adj_pos(self, row:int, col:int, piece):
+        if piece=='M' or piece=='m':
+            if row==9:
+                self.board.set_piece(row-1, col, '.')
+                self.board.set_piece(row-1, col-1, '.')
+                self.board.set_piece(row-1, col+1, '.')
+            elif row==0:
+                self.board.set_piece(row+1, col, '.')
+                self.board.set_piece(row+1, col-1, '.')
+                self.board.set_piece(row+1, col+1, '.')
+            else:
+                if col==0:
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row-1, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row+1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+                else:
+                    self.board.set_piece(row+1, col-1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row-1, col+1, '.')
+        elif piece=='T' or piece=='t':
+            if row==0:
+                if col==0:
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+                else:
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+            else:
+                self.board.set_piece(row-1, col, '.')
+                if col==0:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+                else:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+        elif piece=='B' or piece=='b':
+            if row==9:
+                if col==0:
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row-1, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+                else:
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+            else:
+                self.board.set_piece(row+1, column, '.')
+                if col==0:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+                else:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+        elif piece=='C' or piece=='c':
+            if row==0:
+                self.board.set_piece(row+1, col, '.')
+                if col==0:
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row+1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                else:
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+            elif row==9:
+                self.board.set_piece(row-1, col, '.')
+                if col==0:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                else:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+            else:
+                self.board.set_piece(row-1, col, '.')
+                self.board.set_piece(row+1, col, '.')
+                if col==0:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                elif col==9:
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+                else:
+                    self.board.set_piece(row-1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+        elif piece=='L' or piece=='l':
+            if row ==0:
+                self.board.set_piece(row+1, col, '.')
+                self.board.set_piece(row+1, col+1, '.')
+                if col>=1 and col<=8:
+                    self.board.set_piece(row+1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+            elif row==9:
+                self.board.set_piece(row-1, col, '.')
+                self.board.set_piece(row-1, col+1, '.')
+                if col>=1 and col<=8:
+                    self.board.set_piece(row-1, col-1, '.')
+                    self.board.set_piece(row, col-1, '.')
+            else:
+                self.board.set_piece(row+1, col, '.')
+                self.board.set_piece(row+1, col+1, '.')
+                self.board.set_piece(row-1, col, '.')
+                self.board.set_piece(row-1, col+1, '.')
+                if col>=1 and col<=8:
+                    self.board.set_piece(row, col-1, '.')
+                    self.board.set_piece(row+1, col-1, '.')
+                    self.board.set_piece(row-1, col-1, '.')
+        elif piece=='R' or piece=='r':
+            if row==0:
+                self.board.set_piece(row+1, col, '.')
+                self.board.set_piece(row+1, col-1, '.')
+                if col>=1 and col<=8:
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row, col+1, '.')
+            elif row==9:
+                self.board.set_piece(row-1, col, '.')
+                self.board.set_piece(row-1, col-1, '.')
+                if col>=1 and col<=8:
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row-1, col+1, '.')
+            else:
+                self.board.set_piece(row+1, col, '.')
+                self.board.set_piece(row+1, col-1, '.')
+                self.board.set_piece(row-1, col, '.')
+                self.board.set_piece(row-1, col-1, '.')
+                if col>=1 and col<=8:
+                    self.board.set_piece(row, col+1, '.')
+                    self.board.set_piece(row+1, col+1, '.')
+                    self.board.set_piece(row-1, col+1, '.')
+
     def set_clues(self, lista_clues):
         for clue in lista_clues:
             self.board.set_piece(clue[0], clue[1], clue[2])
-        
-
+            self.clear_adj_pos(clue[0], clue[1], clue[2])  
+                    
 if __name__ == "__main__":
     # TODO:
     board=Board.parse_instance()
