@@ -40,6 +40,9 @@ class Board:
         self.list_colunas=list_colunas
         self.celulas= [['-' for _ in range(10)] for _ in range(10)]
         self.lista_clues=list_clues
+        self.boats=[4,3,2,1]
+        self.a_ser_colocado_em_linhas=list_linhas
+        self.a_ser_colocado_em_colunas=list_colunas
         
         
 
@@ -82,8 +85,21 @@ class Board:
             if not self.get_value(i, col).isalpha():
                 self.celulas[i][column]='.'
 
-    def set_piece(self, row:int, column:int ,piece):
+    def set_piece(self, row:int, column:int ,piece:str):
         self.celulas[row][column]=piece
+        if piece.isalpha() and piece!='W':
+            self.a_ser_colocado_em_linhas[row]-=1
+            self.a_ser_colocado_em_colunas[col]-=1
+        if piece=='c' or piece=='C':
+            self.boats[0]-=1
+        
+        
+    def print_board(self):
+        for i in range(10):
+            for j in range(10):
+                print(self.get_value(i, j), end='')
+            print("")
+                
     
         
     @staticmethod
@@ -98,16 +114,25 @@ class Board:
             > line = stdin.readline().split()
         """
         str_linhas=input()
-        row_numbers=[int(num) for num in str_linhas.split(' ')]
+        words=str_linhas.split()
+        row_numbers=[]
+        for word in words:
+            if word.isdigit():
+                row_numbers.append(int(word))
         str_colunas=input()
-        column_numbers=[int(num) for num in str_colunas.split(' ')]
-        n_clues=(int(input))
+        column_numbers=[]
+        words=str_colunas.split()
+        for word in words:
+            if word.isdigit():
+                column_numbers.append(int(word))
+        n_clues=input()
+        n_clues=int(n_clues)
         clues=[]
         while (n_clues>0):
             clue_input=input()
             clue_parts=clue_input.split()
-            clue_x=clue_parts[1]
-            clue_y=clue_parts[2]
+            clue_x=int(clue_parts[1])
+            clue_y=int(clue_parts[2])
             clue_piece=clue_parts[3]
             clue=(clue_x, clue_y, clue_piece)
             clues.append(clue)
@@ -115,7 +140,7 @@ class Board:
         tabuleiro=Board(row_numbers, column_numbers, clues)
         return tabuleiro
 
-    # TODO: outros metodos da classe
+    
 
 
 class Bimaru(Problem):
@@ -220,7 +245,7 @@ class Bimaru(Problem):
                     self.board.set_piece(row, col-1, '.')
                     self.board.set_piece(row-1, col-1, '.')
             else:
-                self.board.set_piece(row+1, column, '.')
+                self.board.set_piece(row+1, col, '.')
                 if col==0:
                     self.board.set_piece(row-1, col+1, '.')
                     self.board.set_piece(row, col+1, '.')
@@ -329,14 +354,43 @@ class Bimaru(Problem):
     def set_clues(self, lista_clues):
         for clue in lista_clues:
             self.board.set_piece(clue[0], clue[1], clue[2])
-            self.clear_adj_pos(clue[0], clue[1], clue[2])  
+            self.clear_adj_pos(clue[0], clue[1], clue[2])
+    
+    def analisa_board_inicial(self):
+        """analisar o que se pode concluir apos as clues serem implementadas"""
+        for i in range(10):
+            if self.board.list_linhas[i]==0:
+                self.board.clear_row(i)
+            if self.board.list_colunas[i]==0:
+                self.board.clear_column(i)
+        
+    def analisa_cols_and_rows_apos_piece(self):
+        for i in range(10):
+            if self.board.a_ser_colocado_em_colunas[i]==0:
+                self.board.clear_column(i)
+            if self.board.a_ser_colocado_em_linhas[i]==0:
+                self.board.clear_row(i)
+    
+    def analisa_clues(self):
+        for i in range(len(self.board.lista_clues)):
+            if self.board.lista_clues[i][2]=='T':
+                if self.board.lista_clues[i][0]==8:
+                    self.board.set_piece(9, self.board.lista_clues[i][1], 'b')
+                    self.clear_adj_pos(9, self.board.lista_clues[i][1], 'b')
+            elif self.board.lista_clues[i][2]=='B':
+                if self.board.lista_clues[i][0]==1:
+                    self.board.set_piece(0, self.board.lista_clues[i][1], 't')
+                    self.clear_adj_pos(0, self.board.lista_clues[i][1], 't')
+                    
+          
                     
 if __name__ == "__main__":
-    # TODO:
     board=Board.parse_instance()
+    bimaru1=Bimaru(board)
+    bimaru1.set_clues(board.lista_clues)
+    board.print_board()
     
     
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
-    pass
