@@ -82,14 +82,14 @@ class Board:
             
     def clear_column(self, column:int):
         for i in range(10):
-            if not self.get_value(i, col).isalpha():
+            if not self.get_value(i, column).isalpha():
                 self.celulas[i][column]='.'
 
     def set_piece(self, row:int, column:int ,piece:str):
         self.celulas[row][column]=piece
         if piece.isalpha() and piece!='W':
             self.a_ser_colocado_em_linhas[row]-=1
-            self.a_ser_colocado_em_colunas[col]-=1
+            self.a_ser_colocado_em_colunas[column]-=1
         if piece=='c' or piece=='C':
             self.boats[0]-=1
         
@@ -377,12 +377,56 @@ class Bimaru(Problem):
                 if self.board.lista_clues[i][0]==8:
                     self.board.set_piece(9, self.board.lista_clues[i][1], 'b')
                     self.clear_adj_pos(9, self.board.lista_clues[i][1], 'b')
+                    self.board.boats[1]-=1
             elif self.board.lista_clues[i][2]=='B':
                 if self.board.lista_clues[i][0]==1:
                     self.board.set_piece(0, self.board.lista_clues[i][1], 't')
                     self.clear_adj_pos(0, self.board.lista_clues[i][1], 't')
-                    
-          
+                    self.board.boats[1]-=1
+            elif self.board.lista_clues[i][2]=='L':
+                if self.board.lista_clues[i][1]==8:
+                    self.board.set_piece(self.board.lista_clues[i][0], 9, 'r')
+                    self.clear_adj_pos(self.board.lista_clues[i][0], 9, 'r')
+                    self.board.boats[1]-=1
+            elif self.board.lista_clues[i][2]=='R':
+                if self.board.lista_clues[i][1]==1:
+                    self.board.set_piece(self.board.lista_clues[i][0], 0, 'l')
+                    self.clear_adj_pos(self.board.lista_clues[i][0], 0, 'l')
+                    self.board.boats[1]-=1
+            elif self.board.lista_clues[i][2]=='M':
+                if self.board.lista_clues[i][0]==0 or self.board.lista_clues[i][0]==9:
+                    if self.board.lista_clues[i][1]==1:
+                        self.board.set_piece(self.board.lista_clues[i][0], 0, 'l')
+                        self.clear_adj_pos(self.board.lista_clues[i][0], 0, 'l')
+                        self.board.set_piece(self.board.lista_clues[i][0], 2, 'm') #mudar para A quando tivermos isso
+                        self.clear_adj_pos(self.board.lista_clues[i][0], 2, 'm')   #same
+                    elif self.board.lista_clues[i][1]==8:
+                        self.board.set_piece(self.board.lista_clues[i][0], 9, 'r')
+                        self.clear_adj_pos(self.board.lista_clues[i][0], 9, 'r')
+                        self.board.set_piece(self.board.lista_clues[i][0], 7, 'm') #mudar para A quando tivermos isso
+                        self.clear_adj_pos(self.board.lista_clues[i][0], 7, 'm')   #same
+                    else:
+                        self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1,'m') #mudar para A quando tivermos isso
+                        self.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1,'m')   #same
+                        self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1,'m') #same
+                        self.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1,'m')   #same
+                elif self.board.lista_clues[i][1]==0 or self.board.lista_clues[i][1]==9:
+                    if self.board.lista_clues[i][0]==1:
+                        self.board.set_piece(0, self.board.lista_clues[i][1], 't')
+                        self.clear_adj_pos(0, self.board.lista_clues[i][1], 't')
+                        self.board.set_piece(2, self.board.lista_clues[i][1], 'm') #mudar para A quando tivermos isso
+                        self.clear_adj_pos(2, self.board.lista_clues[i][1], 'm')   #same
+                    elif self.board.lista_clues[i][0]==8:
+                        self.board.set_piece(9, self.board.lista_clues[i][1], 'b')
+                        self.clear_adj_pos(9, self.board.lista_clues[i][1], 'b')
+                        self.board.set_piece(7, self.board.lista_clues[i][1], 'm') #mudar para A quando tivermos isso
+                        self.clear_adj_pos(7, self.board.lista_clues[i][1], 'm')   #same
+                    else:
+                        self.board.set_piece(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1],'m') #mudar para A quando tivermos isso
+                        self.clear_adj_pos(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1],'m')   #same
+                        self.board.set_piece(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1],'m') #same
+                        self.clear_adj_pos(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1],'m')   #same
+
                     
 if __name__ == "__main__":
     board=Board.parse_instance()
