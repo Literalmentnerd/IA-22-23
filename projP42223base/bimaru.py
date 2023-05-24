@@ -86,8 +86,7 @@ class Board:
         for i in range(10):
             if not self.get_value(i, column).isalpha():
                 self.celulas[i][column]='.'
-    #def ajeita_column(self, col:int):
-        
+
 
     def set_piece(self, row:int, column:int ,piece:str):
         self.celulas[row][column]=piece
@@ -100,6 +99,26 @@ class Board:
             self.boats[0]-=1
         
         
+    def ajeita_column(self, col:int):
+        if self.posicoes_livres_col[col]==0:
+            for i in range(10):
+                if self.celulas[i][col]=='m':
+                    if self.get_value(i-1,col)=='.':
+                        self.celulas[i][col]=='t'
+                    elif self.get_value(i+1,col)=='.':
+                        self.celulas[i][col]=='b'
+    
+
+    def ajeita_row(self, row:int):
+        if self.posicoes_livres_line[row]==0:
+            for i in range(10):
+                if self.celulas[row][i]=='m':
+                    if self.get_value(row,i-1)=='.':
+                        self.celulas[row][i]=='l'
+                    elif self.get_value(row,i+1)=='.':
+                        self.celulas[row][i]=='r'
+
+
     def print_board(self):
         for i in range(10):
             for j in range(10):
@@ -463,8 +482,35 @@ class Bimaru(Problem):
                         self.clear_adj_pos(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1],'m')
                         self.board.set_piece(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1],'m')
                         self.clear_adj_pos(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1],'m')
-                #else:
-                #    if self.board.Meio_horizontal(self.board.lista_clues[i][0],self.board.lista_clues[i][1]) == True
+                else:
+                    if self.board.Meio_horizontal(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False:
+                        if self.board.lista_clues[i][0]==1:
+                            self.board.set_piece(0,self.board.lista_clues[i][1],'t')
+                            self.board.set_piece(2,self.board.lista_clues[i][1],'m')
+                            self.clear_adj_pos(2,self.board.lista_clues[i][1],'m')
+                        elif self.board.lista_clues[i][0]==8:
+                            self.board.set_piece(9,self.board.lista_clues[i][1],'b')
+                            self.board.set_piece(7,self.board.lista_clues[i][1],'m')
+                            self.clear_adj_pos(7,self.board.lista_clues[i][1],'m')
+                        else:
+                            self.board.set_piece(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'m')
+                            self.clear_adj_pos(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'m')
+                            self.board.set_piece(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
+                            self.clear_adj_pos(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
+                    elif self.board.Meio_vertical(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False:
+                        if self.board.lista_clues[i][1]==1:
+                            self.board.set_piece(self.board.lista_clues[i][0],0,'l')
+                            self.board.set_piece(self.board.lista_clues[i][0],2,'m')
+                            self.clear_adj_pos(self.board.lista_clues[i][0],2,'m')
+                        elif self.board.lista_clues[i][1]==8:
+                            self.board.set_piece(self.board.lista_clues[i][0],9,'r')
+                            self.board.set_piece(self.board.lista_clues[i][0],7,'m')
+                            self.clear_adj_pos(self.board.lista_clues[i][1],7,'m')
+                        else:
+                            self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
+                            self.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
+                            self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
+                            self.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
 
                     
 if __name__ == "__main__":
