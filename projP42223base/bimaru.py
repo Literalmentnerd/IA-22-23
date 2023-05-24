@@ -84,6 +84,8 @@ class Board:
         for i in range(10):
             if not self.get_value(i, column).isalpha():
                 self.celulas[i][column]='.'
+    #def ajeita_column(self, col:int):
+        
 
     def set_piece(self, row:int, column:int ,piece:str):
         self.celulas[row][column]=piece
@@ -101,7 +103,11 @@ class Board:
             print("")
                 
     
-        
+    def Meio_vertical(self, row:int, col:int):
+        return self.adjacent_horizontal_values(row, col)[0]=='.' or  self.adjacent_horizontal_values(row, col)[1]=='.'or self.adjacent_vertical_values(row, col)[0].isalpha() or self.adjacent_vertical_values(row, col)[1].isalpha()
+    
+    def Meio_horizontal(self, row:int, col:int):
+        return self.adjacent_horizontal_values(row, col)[0].isalpha() or  self.adjacent_horizontal_values(row, col)[1].isalpha() or self.adjacent_vertical_values(row, col)[0]=='.' or self.adjacent_vertical_values(row, col)[1]=='.' 
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -201,6 +207,12 @@ class Bimaru(Problem):
                     self.board.set_piece(row+1, col+1, '.')
                     self.board.set_piece(row-1, col-1, '.')
                     self.board.set_piece(row-1, col+1, '.')
+                    if self.board.Meio_horizontal(row, col) and not self.board.Meio_vertical(row, col):
+                        self.board.set_piece(row+1, col, '.')
+                        self.board.set_piece(row-1, col, '.')
+                    elif not self.board.Meio_horizontal(row, col) and self.board.Meio_vertical(row, col):
+                        self.board.set_piece(row, col-1, '.')
+                        self.board.set_piece(row, col+1, '.')
         elif piece=='T' or piece=='t':
             if row==0:
                 if col==0:
@@ -378,21 +390,33 @@ class Bimaru(Problem):
                     self.board.set_piece(9, self.board.lista_clues[i][1], 'b')
                     self.clear_adj_pos(9, self.board.lista_clues[i][1], 'b')
                     self.board.boats[1]-=1
+                else:
+                    self.board.set_piece(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
+                    self.clear_adj_pos(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
             elif self.board.lista_clues[i][2]=='B':
                 if self.board.lista_clues[i][0]==1:
                     self.board.set_piece(0, self.board.lista_clues[i][1], 't')
                     self.clear_adj_pos(0, self.board.lista_clues[i][1], 't')
                     self.board.boats[1]-=1
+                else:
+                    self.board.set_piece(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
+                    self.clear_adj_pos(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
             elif self.board.lista_clues[i][2]=='L':
                 if self.board.lista_clues[i][1]==8:
                     self.board.set_piece(self.board.lista_clues[i][0], 9, 'r')
                     self.clear_adj_pos(self.board.lista_clues[i][0], 9, 'r')
                     self.board.boats[1]-=1
+                else:
+                    self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
+                    self.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
             elif self.board.lista_clues[i][2]=='R':
                 if self.board.lista_clues[i][1]==1:
                     self.board.set_piece(self.board.lista_clues[i][0], 0, 'l')
                     self.clear_adj_pos(self.board.lista_clues[i][0], 0, 'l')
                     self.board.boats[1]-=1
+                else:
+                    self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
+                    self.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
             elif self.board.lista_clues[i][2]=='M':
                 if self.board.lista_clues[i][0]==0 or self.board.lista_clues[i][0]==9:
                     if self.board.lista_clues[i][1]==1:
@@ -432,6 +456,7 @@ if __name__ == "__main__":
     board=Board.parse_instance()
     bimaru1=Bimaru(board)
     bimaru1.set_clues(board.lista_clues)
+    bimaru1.analisa_clues()
     board.print_board()
     
     
