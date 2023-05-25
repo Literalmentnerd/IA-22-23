@@ -72,20 +72,8 @@ class Board:
         elif col==9:
             return (self.get_value(row, col-1),'X')
         else:
-            return (self.get_value(row, col-1), self.get_value(row, col+1))
-    
-    
-            
+            return (self.get_value(row, col-1), self.get_value(row, col+1))        
         
-    def clear_row(self, row:int):
-        for i in range(10):
-            if not self.get_value(row, i).isalpha():
-                self.celulas[row][i]='.'
-            
-    def clear_column(self, column:int):
-        for i in range(10):
-            if not self.get_value(i, column).isalpha():
-                self.celulas[i][column]='.'
 
 
     def set_piece(self, row:int, column:int ,piece:str):
@@ -98,25 +86,64 @@ class Board:
         if piece=='c' or piece=='C':
             self.boats[0]-=1
         
+        if self.a_ser_colocado_em_colunas[col]==0:
+            self.clear_column(col)
+        if self.a_ser_colocado_em_linhas[row]==0:
+            self.clear_row(row)
+        
         
     def ajeita_column(self, col:int):
         if self.posicoes_livres_col[col]==0:
+            streak=0
             for i in range(10):
-                if self.celulas[i][col]=='m':
-                    if self.get_value(i-1,col)=='.':
-                        self.celulas[i][col]=='t'
-                    elif self.get_value(i+1,col)=='.':
-                        self.celulas[i][col]=='b'
+                if self.get_value(i, col).isalpha() and self.get_value(i, col)!='W':
+                    streak+=1
+                    if self.adjacent_vertical_values(i, col)[1].lower()=='m' and self.adjacent_vertical_values(i, col)[0] in ('.', 'X', 'W'):
+                        self.celulas[i][col]='t'
+                    elif self.adjacent_vertical_values(i, col)[1] in ('X', '.', 'W') and self.adjacent_vertical_values(i, col)[0].isalpha() and self.adjacent_vertical_values(i, col)!='W':
+                        self.celulas[i][col]='b'
+                else:
+                    if streak>1:
+                        self.boats[streak-1]-=1
+                    elif streak==1:
+                        if self.get_value(i-1, col)=='m':
+                            if self.adjacent_horizontal_values(i-1, col)[0] in ('.', 'X','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', 'X','W'):
+                                self.celulas[i-1][col]='c'
+                                self.boats[0]-=1
+                    streak=0                  
     
 
     def ajeita_row(self, row:int):
         if self.posicoes_livres_line[row]==0:
+            streak=0
             for i in range(10):
-                if self.celulas[row][i]=='m':
-                    if self.get_value(row,i-1)=='.':
-                        self.celulas[row][i]=='l'
-                    elif self.get_value(row,i+1)=='.':
-                        self.celulas[row][i]=='r'
+                if self.get_value(row, i).isalpha() and self.get_value(row, i)!='W':
+                    streak+=1
+                    if self.adjacent_horizontal_values(row, i)[1].lower=='m' and self.adjacent_horizontal_values(row, i)[0] in ('.', 'X','W'):
+                        self.celulas[row][i]='l'
+                    elif self.adjacent_horizontal_values(row, i)[1] in ('X','.','W') and self.adjacent_horizontal_values(row, i)[0].isalpha() and self.adjacent_horizontal_values(row, i)!='W': 
+                        self.celulas[row][i]='r'
+                else:
+                    if streak>1:
+                        self.boats[streak-1]-=1
+                    elif streak==1:
+                        if self.get_value(row, i-1)=='m':
+                            if self.adjacent_vertical_values(row, i-1)[0] in ('.', 'X', 'W') and self.adjacent_vertical_values(row, i-1)[1] in ('.', 'X', 'W'):
+                                self.celulas[row][i-1]='c'
+                                self.boats[0]-=1
+                    streak=0
+    
+    def clear_row(self, row:int):
+        for i in range(10):
+            if not self.get_value(row, i).isalpha():
+                self.celulas[row][i]='.'
+        self.ajeita_row(row)
+            
+    def clear_column(self, column:int):
+        for i in range(10):
+            if not self.get_value(i, column).isalpha():
+                self.celulas[i][column]='.'
+        self.ajeita_column(column)
 
 
     def print_board(self):
@@ -127,10 +154,10 @@ class Board:
                 
     
     def Meio_vertical(self, row:int, col:int):
-        return self.adjacent_horizontal_values(row, col)[0]=='.' or  self.adjacent_horizontal_values(row, col)[1]=='.'or self.adjacent_vertical_values(row, col)[0].isalpha() or self.adjacent_vertical_values(row, col)[1].isalpha()
+        return (self.adjacent_horizontal_values(row, col)[0]=='.' or  self.adjacent_horizontal_values(row, col)[1]=='.'or self.adjacent_vertical_values(row, col)[0].isalpha() or self.adjacent_vertical_values(row, col)[1].isalpha())
     
     def Meio_horizontal(self, row:int, col:int):
-        return self.adjacent_horizontal_values(row, col)[0].isalpha() or  self.adjacent_horizontal_values(row, col)[1].isalpha() or self.adjacent_vertical_values(row, col)[0]=='.' or self.adjacent_vertical_values(row, col)[1]=='.' 
+        return (self.adjacent_horizontal_values(row, col)[0].isalpha() or  self.adjacent_horizontal_values(row, col)[1].isalpha() or self.adjacent_vertical_values(row, col)[0]=='.' or self.adjacent_vertical_values(row, col)[1]=='.') 
     
     @staticmethod
     def parse_instance():
@@ -196,23 +223,24 @@ class Bimaru(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        # TODO
-        pass
+        completo=[0,0,0,0,0,0,0,0,0,0]
+        if self.board.boats==[0,0,0,0] and self.board.posicoes_livres_col==completo and self.board.posicoes_livres_linhas==completo and self.board.a_ser_colocado_em_colunas==completo and self.board.a_ser_colocado_em_linhas==completo:
+            return True
+        
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
         # TODO
         pass
     
-    def zero_in_line(self):
+    def zero_in_board(self):
         for i in range(10):
             if self.board.list_linhas[i] == 0:
                 self.board.clear_row(i)
-
-    def zero_in_col(self):
-        for i in range(10):
             if self.board.list_colunas[i] == 0:
                 self.board.clear_column(i)
+
+            
     
 
     def clear_adj_pos(self, row:int, col:int, piece):
@@ -398,22 +426,8 @@ class Bimaru(Problem):
     def set_clues(self, lista_clues):
         for clue in lista_clues:
             self.board.set_piece(clue[0], clue[1], clue[2])
-            self.clear_adj_pos(clue[0], clue[1], clue[2])
+            self.clear_adj_pos(clue[0], clue[1], clue[2])    
     
-    def analisa_board_inicial(self):
-        """analisar o que se pode concluir apos as clues serem implementadas"""
-        for i in range(10):
-            if self.board.list_linhas[i]==0:
-                self.board.clear_row(i)
-            if self.board.list_colunas[i]==0:
-                self.board.clear_column(i)
-        
-    def analisa_cols_and_rows_apos_piece(self):
-        for i in range(10):
-            if self.board.a_ser_colocado_em_colunas[i]==0:
-                self.board.clear_column(i)
-            if self.board.a_ser_colocado_em_linhas[i]==0:
-                self.board.clear_row(i)
     
     def analisa_clues(self):
         for i in range(len(self.board.lista_clues)):
@@ -517,8 +531,7 @@ if __name__ == "__main__":
     board=Board.parse_instance()
     bimaru1=Bimaru(board)
     bimaru1.set_clues(board.lista_clues)
-    bimaru1.zero_in_col()
-    bimaru1.zero_in_line()
+    bimaru1.zero_in_board()
     bimaru1.analisa_clues()
     board.print_board()
     
