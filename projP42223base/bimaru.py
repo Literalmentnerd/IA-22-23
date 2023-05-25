@@ -143,6 +143,7 @@ class Board:
     def Meio_horizontal(self, row:int, col:int):
         return (self.adjacent_horizontal_values(row, col)[0].isalpha() or  self.adjacent_horizontal_values(row, col)[1].isalpha() or self.adjacent_vertical_values(row, col)[0]=='.' or self.adjacent_vertical_values(row, col)[1]=='.') 
     
+
     def set_piece(self, row:int, column:int ,piece:str):
         if self.celulas[row][column]=='-':
             self.posicoes_livres_linhas[row]-= 1
@@ -152,16 +153,11 @@ class Board:
                 self.a_ser_colocado_em_colunas[column]-=1
             if piece=='c' or piece=='C':
                 self.boats[0]-=1
-            
             if self.a_ser_colocado_em_colunas[column]==0:
                 self.clear_column(column)
             if self.a_ser_colocado_em_linhas[row]==0:
-                self.clear_row(row)
+                self.clear_row(row) 
         self.celulas[row][column]=piece
-        if self.posicoes_livres_col[column] == self.a_ser_colocado_em_colunas[column]:
-            self.completa_coluna[column]
-        if self.posicoes_livres_linhas[row] == self.a_ser_colocado_em_linhas[row]:
-            self.completa_row[row]
 
     def clear_adj_pos(self, row:int, col:int, piece):
         if piece=='M' or piece=='m':
@@ -345,17 +341,15 @@ class Board:
 
 
     def completa_coluna(self, col:int):
-        if self.posicoes_livres_col[col] == self.a_ser_colocado_em_colunas[col] and self.posicoes_livres_col[col] > 0:
-            for i in range(10):
-                if self.celulas[i][col]=='-':
-                    self.set_piece(i,col,'m')
+        for i in range(10):
+            if self.celulas[i][col]=='-':
+                self.set_piece(i,col,'m')
 
 
     def completa_row(self, row:int):
-        if self.posicoes_livres_linhas[row] == self.a_ser_colocado_em_linhas[row] and self.posicoes_livres_linhas[row] > 0:
-            for i in range(10):
-                if self.celulas[row][i]=='-':
-                    self.set_piece(i,row,'m')
+        for i in range(10):
+            if self.celulas[row][i]=='-':
+                self.set_piece(row,i,'m')
 
                     
 
@@ -439,6 +433,7 @@ class Bimaru(Problem):
                 self.board.clear_row(i)
             if self.board.list_colunas[i] == 0:
                 self.board.clear_column(i)
+            self.board.completa_coluna
 
 
     def set_clues(self, lista_clues):
@@ -545,12 +540,21 @@ class Bimaru(Problem):
                             self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
     
 
+    def analisa_board(self):
+        for i in range(10):
+            if self.board.posicoes_livres_col[i] == self.board.a_ser_colocado_em_colunas[i] and self.board.posicoes_livres_col > 0:
+                self.board.completa_coluna(i)
+            if self.board.posicoes_livres_linhas[i] == self.board.a_ser_colocado_em_linhas[i] and self.board.posicoes_livres_linhas > 0:
+                self.board.completa_row(i)   
+
+
 if __name__ == "__main__":
     board=Board.parse_instance()
     bimaru1=Bimaru(board)
     bimaru1.zero_in_board()
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
+    bimaru1.analisa_board()
     board.print_board()
     
     
