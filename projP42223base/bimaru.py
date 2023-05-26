@@ -90,12 +90,22 @@ class Board:
                 else:
                     if streak>1:
                         self.boats[streak-1]-=1
+                        #print("contei um barco de tamanho", streak, "na coluna ", col)
                     elif streak==1:
                         if self.get_value(i-1, col) in ('m','a'):
                             if self.adjacent_horizontal_values(i-1, col)[0] in ('.', '?','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', '?','W'):
                                 self.celulas[i-1][col]='c'
                                 self.boats[0]-=1
-                    streak=0                  
+                    streak=0
+            if streak>1:
+                self.boats[streak-1]-=1
+                #print("contei um barco de tamanho", streak, "na coluna ", col)
+            elif streak==1:
+                if self.get_value(9, col) in ('m','a'):
+                    if self.adjacent_horizontal_values(9, col)[0] in ('.', '?', 'W') and self.adjacent_horizontal_values(9, col)[1] in ('.', '?', 'W'):
+                        self.celulas[9][row]='c'
+                        self.boats[0]-=1
+                    
     
 
     def ajeita_row(self, row:int):
@@ -113,12 +123,21 @@ class Board:
                 else:
                     if streak>1:
                         self.boats[streak-1]-=1
+                        #print("contei um barco de tamanho", streak, "na linha ", row)
                     elif streak==1:
                         if self.get_value(row, i-1) in ('m','a'):
                             if self.adjacent_vertical_values(row, i-1)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, i-1)[1] in ('.', '?', 'W'):
                                 self.celulas[row][i-1]='c'
                                 self.boats[0]-=1
                     streak=0
+            if streak>1:
+                self.boats[streak-1]-=1
+                #print("contei um barco de tamanho", streak, "na linha ", row)
+            elif streak==1:
+                if self.get_value(row, 9) in ('m','a'):
+                    if self.adjacent_vertical_values(row, 9)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, 9)[1] in ('.','?', 'W'):
+                        self.celulas[row][9]='c'
+                        self.boats[0]-=1
     
     def clear_row(self, row:int):
         for i in range(10):
