@@ -104,7 +104,7 @@ class Board:
             for i in range(10):
                 if self.get_value(row, i).isalpha() and self.get_value(row, i)!='W':
                     streak+=1
-                    if self.get_value(row, i).lower() in ('m', 'a'):
+                    if self.get_value(row, i) in ('m', 'a'):
                         self.celulas[row][i]='m'
                         if self.adjacent_horizontal_values(row, i)[1] in ('m','a','r','M','R') and self.adjacent_horizontal_values(row, i)[0] in ('.', '?','W'):
                             self.set_piece(row,i,'l')
@@ -217,10 +217,17 @@ class Board:
                     self.set_piece(row+1, col+1,'.')
                     self.set_piece(row+1, col+1,'.')
             else:
-                self.set_piece(row+1, col-1, '.')
-                self.set_piece(row+1, col+1, '.')
-                self.set_piece(row-1, col-1, '.')
-                self.set_piece(row-1, col+1, '.')
+                if col==0:
+                    self.set_piece(row-1, col+1,'.')
+                    self.set_piece(row+1, col+1,'.')
+                elif col==9:
+                    self.set_piece(row-1, col-1,'.')
+                    self.set_piece(row+1, col-1,'.')
+                else:
+                    self.set_piece(row-1, col+1,'.')
+                    self.set_piece(row+1, col+1,'.')
+                    self.set_piece(row-1, col-1,'.')
+                    self.set_piece(row+1, col-1,'.')
             
         elif piece=='T' or piece=='t':
             if row==0:
@@ -377,7 +384,7 @@ class Board:
         for i in range(10):
             if self.celulas[i][col]=='-' and self.posicoes_livres_col[col]>0:
                 self.set_piece(i,col,'a')
-                self.set_piece(i,col,'a')
+                self.clear_adj_pos(i, col, 'a')
             self.ajeita_column(col)
 
 
