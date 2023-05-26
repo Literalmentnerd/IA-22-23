@@ -108,7 +108,7 @@ class Board:
                         self.celulas[row][i]='m'
                         if self.adjacent_horizontal_values(row, i)[1] in ('m','a','r','M','R') and self.adjacent_horizontal_values(row, i)[0] in ('.', '?','W'):
                             self.set_piece(row,i,'l')
-                        elif self.adjacent_horizontal_values(row, i)[1] in ('?','.','W') and self.adjacent_horizontal_values(row, i)[0].lower() in ('m','a','l','L','A','M'):
+                        elif self.adjacent_horizontal_values(row, i)[1] in ('?','.','W') and self.adjacent_horizontal_values(row, i)[0] in ('m','a','l','L','A','M'):
                             self.set_piece(row,i,'r')
                 else:
                     if streak>1:
@@ -124,13 +124,12 @@ class Board:
         for i in range(10):
             if self.get_value(row, i)=='-':
                 self.set_piece(row, i, '.')
-        self.ajeita_row(row)
+
             
     def clear_column(self, column:int):
         for i in range(10):
             if self.get_value(i, column)=='-':
                 self.set_piece(i, column, '.')
-        self.ajeita_column(column)
 
 
     def print_board(self):
@@ -385,7 +384,6 @@ class Board:
             if self.celulas[i][col]=='-' and self.posicoes_livres_col[col]>0:
                 self.set_piece(i,col,'a')
                 self.clear_adj_pos(i, col, 'a')
-            self.ajeita_column(col)
 
 
     def completa_row(self, row:int):
@@ -393,9 +391,7 @@ class Board:
             if self.celulas[row][i]=='-' and self.posicoes_livres_linhas[row]>0:
                 self.set_piece(row,i,'a')
                 self.clear_adj_pos(row,i,'a')
-            self.ajeita_row(row)
-
-                    
+    
 
     @staticmethod
     def parse_instance():
@@ -591,6 +587,10 @@ class Bimaru(Problem):
                             self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
     
    
+    def ajeita_board(self):
+        for i in range(10):
+            self.board.ajeita_row(i)
+            self.board.ajeita_column(i)
 
 
 if __name__ == "__main__":
@@ -598,12 +598,8 @@ if __name__ == "__main__":
     bimaru1=Bimaru(board)
     bimaru1.zero_in_board()
     bimaru1.set_clues(board.lista_clues)
-    print('antes das clues...')
-    board.print_board()
     bimaru1.analisa_clues()
-    #print(bimaru1.board.a_ser_colocado_em_linhas[0])
-    #print(bimaru1.board.posicoes_livres_linhas[0])
-    print('depois das clues...')
+    bimaru1.ajeita_board()
     board.print_board()
     
     
