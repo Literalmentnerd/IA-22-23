@@ -443,10 +443,18 @@ class Bimaru(Problem):
     
     def zero_in_board(self):
         for i in range(10):
-            if self.board.list_linhas[i] == 0:
-                self.board.clear_row(i)
-            if self.board.list_colunas[i] == 0:
-                self.board.clear_column(i)
+            if self.board.list_linhas[i]==0:
+                for j in range(10):
+                    if self.board.get_value(i,j)=='-':
+                        self.board.posicoes_livres_linhas[i]-=1
+                        self.board.posicoes_livres_col[j]-=1
+                    self.board.celulas[i][j]='.'
+            if self.board.list_colunas[i]==0:
+                for j in range(10):
+                    if self.board.get_value(j,i)=='-':
+                        self.board.posicoes_livres_col[i]-=1
+                        self.board.posicoes_livres_linhas[j]-=1
+                    self.board.celulas[j][i]='.'
 
 
     def set_clues(self, lista_clues):
@@ -561,6 +569,8 @@ if __name__ == "__main__":
     bimaru1.zero_in_board()
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
+    print(bimaru1.board.a_ser_colocado_em_linhas[0])
+    print(bimaru1.board.posicoes_livres_linhas[0])
     board.print_board()
     
     
