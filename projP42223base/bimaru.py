@@ -56,9 +56,9 @@ class Board:
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
         if row==0:
-            return ('X', self.get_value(row+1, col))
+            return ('?', self.get_value(row+1, col))
         elif row==9:
-            return (self.get_value(row-1, col), 'X')
+            return (self.get_value(row-1, col), '?')
         else:
             return (self.get_value(row-1, col), self.get_value(row+1, col))
         pass
@@ -68,9 +68,9 @@ class Board:
         respectivamente."""
         
         if col==0:
-            return ('X', self.get_value(row, col+1))
+            return ('?', self.get_value(row, col+1))
         elif col==9:
-            return (self.get_value(row, col-1),'X')
+            return (self.get_value(row, col-1),'?')
         else:
             return (self.get_value(row, col-1), self.get_value(row, col+1))        
         
@@ -81,16 +81,19 @@ class Board:
             for i in range(10):
                 if self.get_value(i, col).isalpha() and self.get_value(i, col)!='W':
                     streak+=1
-                    if self.adjacent_vertical_values(i, col)[1].lower()=='m' and self.adjacent_vertical_values(i, col)[0] in ('.', 'X', 'W'):
-                        self.celulas[i][col]='t'
-                    elif self.adjacent_vertical_values(i, col)[1] in ('X', '.', 'W') and self.adjacent_vertical_values(i, col)[0].isalpha() and self.adjacent_vertical_values(i, col)!='W':
-                        self.celulas[i][col]='b'
+                    if self.get_value(i,col) in ('m','a'):
+                        if self.adjacent_vertical_values(i, col)[1].lower() in ('m','a','b') and self.adjacent_vertical_values(i, col)[0] in ('.', '?', 'W'):
+                            self.set_piece(i,col,'t')
+                            self.clear_adj_pos(i,col,'t')
+                        elif self.adjacent_vertical_values(i, col)[1] in ('?', '.', 'W') and self.adjacent_vertical_values(i, col)[0].lower() in ('m','a','t'):
+                            self.set_piece(i,col,'b')
+                            self.clear_adj_pos(i,col,'b')
                 else:
                     if streak>1:
                         self.boats[streak-1]-=1
                     elif streak==1:
-                        if self.get_value(i-1, col)=='m':
-                            if self.adjacent_horizontal_values(i-1, col)[0] in ('.', 'X','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', 'X','W'):
+                        if self.get_value(i-1, col) in ('m','a'):
+                            if self.adjacent_horizontal_values(i-1, col)[0] in ('.', '?','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', '?','W'):
                                 self.celulas[i-1][col]='c'
                                 self.boats[0]-=1
                     streak=0                  
@@ -102,30 +105,33 @@ class Board:
             for i in range(10):
                 if self.get_value(row, i).isalpha() and self.get_value(row, i)!='W':
                     streak+=1
-                    if self.adjacent_horizontal_values(row, i)[1].lower=='m' and self.adjacent_horizontal_values(row, i)[0] in ('.', 'X','W'):
-                        self.celulas[row][i]='l'
-                    elif self.adjacent_horizontal_values(row, i)[1] in ('X','.','W') and self.adjacent_horizontal_values(row, i)[0].isalpha() and self.adjacent_horizontal_values(row, i)!='W': 
-                        self.celulas[row][i]='r'
+                    if self.get_value(row, i).lower() in ('m', 'a'):
+                        if self.adjacent_horizontal_values(row, i)[1].lower() in ('m','a','r') and self.adjacent_horizontal_values(row, i)[0] in ('.', '?','W'):
+                            self.set_piece(row,i,'l')
+                            self.clear_adj_pos(row,i,'l')
+                        elif self.adjacent_horizontal_values(row, i)[1] in ('?','.','W') and self.adjacent_horizontal_values(row, i)[0].lower() in ('m','a','l'):
+                            self.set_piece(row,i,'r')
+                            self.clear_adj_pos(row,i,'r')
                 else:
                     if streak>1:
                         self.boats[streak-1]-=1
                     elif streak==1:
-                        if self.get_value(row, i-1)=='m':
-                            if self.adjacent_vertical_values(row, i-1)[0] in ('.', 'X', 'W') and self.adjacent_vertical_values(row, i-1)[1] in ('.', 'X', 'W'):
+                        if self.get_value(row, i-1) in ('m','a'):
+                            if self.adjacent_vertical_values(row, i-1)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, i-1)[1] in ('.', '?', 'W'):
                                 self.celulas[row][i-1]='c'
                                 self.boats[0]-=1
                     streak=0
     
     def clear_row(self, row:int):
         for i in range(10):
-            if not self.get_value(row, i).isalpha():
-                self.celulas[row][i]='.'
+            if self.get_value(row, i)=='-':
+                self.set_piece(row, i, '.')
         self.ajeita_row(row)
             
     def clear_column(self, column:int):
         for i in range(10):
-            if not self.get_value(i, column).isalpha():
-                self.celulas[i][column]='.'
+            if self.get_value(i, column)=='-':
+                self.set_piece(i, column, '.')
         self.ajeita_column(column)
 
 
@@ -146,17 +152,21 @@ class Board:
 
     def set_piece(self, row:int, column:int ,piece:str):
         if self.celulas[row][column]=='-':
-            self.posicoes_livres_linhas[row]-= 1
+            self.posicoes_livres_linhas[row]-=1
             self.posicoes_livres_col[column]-=1
             if piece.isalpha() and piece!='W':
                 self.a_ser_colocado_em_linhas[row]-=1
                 self.a_ser_colocado_em_colunas[column]-=1
             if piece=='c' or piece=='C':
                 self.boats[0]-=1
-            if self.a_ser_colocado_em_colunas[column]==0:
+            if self.a_ser_colocado_em_colunas[column]==0 and self.posicoes_livres_col[column] >0:
                 self.clear_column(column)
-            if self.a_ser_colocado_em_linhas[row]==0:
-                self.clear_row(row) 
+            if self.a_ser_colocado_em_linhas[row]==0 and self.posicoes_livres_linhas[row]>0:
+                self.clear_row(row)
+            if self.a_ser_colocado_em_colunas[column]==self.posicoes_livres_col[column] and self.posicoes_livres_col[column]>0:
+                self.completa_coluna(column)
+            if self.a_ser_colocado_em_linhas[row]==self.posicoes_livres_linhas[row] and self.posicoes_livres_linhas[row]>0:
+                self.completa_row(row) 
         self.celulas[row][column]=piece
 
     def clear_adj_pos(self, row:int, col:int, piece):
@@ -342,14 +352,18 @@ class Board:
 
     def completa_coluna(self, col:int):
         for i in range(10):
-            if self.celulas[i][col]=='-':
-                self.set_piece(i,col,'m')
+            if self.celulas[i][col]=='-' and self.posicoes_livres_col[col]>0:
+                self.set_piece(i,col,'a')
+                self.set_piece(i,col,'a')
+            self.ajeita_column(col)
 
 
     def completa_row(self, row:int):
         for i in range(10):
-            if self.celulas[row][i]=='-':
-                self.set_piece(row,i,'m')
+            if self.celulas[row][i]=='-' and self.posicoes_livres_linhas[row]>0:
+                self.set_piece(row,i,'a')
+                self.clear_adj_pos(row,i,'a')
+            self.ajeita_row(row)
 
                     
 
@@ -433,7 +447,6 @@ class Bimaru(Problem):
                 self.board.clear_row(i)
             if self.board.list_colunas[i] == 0:
                 self.board.clear_column(i)
-            self.board.completa_coluna
 
 
     def set_clues(self, lista_clues):
@@ -539,13 +552,7 @@ class Bimaru(Problem):
                             self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
                             self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
     
-
-    def analisa_board(self):
-        for i in range(10):
-            if self.board.posicoes_livres_col[i] == self.board.a_ser_colocado_em_colunas[i] and self.board.posicoes_livres_col > 0:
-                self.board.completa_coluna(i)
-            if self.board.posicoes_livres_linhas[i] == self.board.a_ser_colocado_em_linhas[i] and self.board.posicoes_livres_linhas > 0:
-                self.board.completa_row(i)   
+   
 
 
 if __name__ == "__main__":
@@ -554,7 +561,6 @@ if __name__ == "__main__":
     bimaru1.zero_in_board()
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
-    bimaru1.analisa_board()
     board.print_board()
     
     
