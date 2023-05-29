@@ -11,7 +11,6 @@ import random
 from itertools import chain, combinations
 from statistics import mean
 
-import numpy as np
 
 
 # ______________________________________________________________________________

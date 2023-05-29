@@ -45,6 +45,8 @@ class Board:
         self.a_ser_colocado_em_colunas=list(list_colunas)
         self.posicoes_livres_linhas=[10,10,10,10,10,10,10,10,10,10]
         self.posicoes_livres_col=[10,10,10,10,10,10,10,10,10,10]
+        self.colunas_ajeitadas=[False, False, False, False, False, False, False, False, False, False]
+        self.linhas_ajeitadas=[False, False, False, False, False, False, False, False, False, False]
         
         
 
@@ -423,30 +425,29 @@ class Board:
             > from sys import stdin
             > line = stdin.readline().split()
         """
-        str_linhas=input()
-        words=str_linhas.split()
+        from sys import stdin
+        str_linhas=stdin.readline().split()
         row_numbers=[]
-        for word in words:
+        for word in str_linhas:
             if word.isdigit():
                 row_numbers.append(int(word))
-        str_colunas=input()
+        str_colunas=stdin.readline().split()
         column_numbers=[]
-        words=str_colunas.split()
-        for word in words:
+        for word in str_colunas:
             if word.isdigit():
                 column_numbers.append(int(word))
-        n_clues=input()
+        n_clues=stdin.readline()
         n_clues=int(n_clues)
         clues=[]
-        while (n_clues>0):
-            clue_input=input()
-            clue_parts=clue_input.split()
-            clue_x=int(clue_parts[1])
-            clue_y=int(clue_parts[2])
-            clue_piece=clue_parts[3]
+        i=0
+        while (i<n_clues):
+            clue_input=stdin.readline().split()
+            clue_x=int(clue_input[1])
+            clue_y=int(clue_input[2])
+            clue_piece=clue_input[3]
             clue=(clue_x, clue_y, clue_piece)
             clues.append(clue)
-            n_clues=n_clues-1
+            i+=1
         tabuleiro=Board(row_numbers, column_numbers, clues)
         return tabuleiro
 
@@ -461,8 +462,15 @@ class Bimaru(Problem):
     def actions(self, state: BimaruState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        # TODO
-        pass
+        actions=[]
+        if self.board.boats[3]>0:
+            actions.append('colocar barco de 4')
+        if self.board.boats[2]>0:
+            actions.append('colocar barco de 3')
+        if self.board.boats[1]>0:
+            actions.append('colocar barco de 2')
+        if self.board.boats[0]>0:
+            actions.append('colocar barco de 1')
 
     def result(self, state: BimaruState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -608,8 +616,36 @@ class Bimaru(Problem):
    
     def ajeita_board(self):
         for i in range(10):
-            self.board.ajeita_row(i)
-            self.board.ajeita_column(i)
+            if self.board.linhas_ajeitadas[i]==False:
+                self.board.ajeita_row(i)
+            if self.board.colunas_ajeitadas[i]==False:
+                self.board.ajeita_column(i)
+    def place_boat(self, tamanho:int, sentido:str, row:int, col:int):
+        if tamanho==1:
+            self.board.set_piece(row, col, 'c')
+            return
+        if sentido=='v':
+            for i in range(tamanho):
+                if i==0:
+                    self.board.set_piece(row, col, 't')
+                    self.board.clear_adj_pos(row, col, 't')
+                elif i==tamanho-1:
+                    self.board.set_piece(row+i, col, 'b')
+                    self.board.clear_adj_pos(row+i, col, 'b')
+                else:
+                    self.board.set_piece(row+i, col, 'm')
+                    self.board.clear_adj_pos(row+i, col, 'm')
+        elif sentido=='h':
+            for i in range(tamanho):
+                if i==0:
+                    self.board.set_piece(row, col, 'l')
+                    self.board.clear_adj_pos(row, col, 'l')
+                elif i==tamanho-1:
+                    self.board.set_piece(row, col+i, 'r')
+                    self.board.clear_adj_pos(row, col+i, 'r')
+                else:
+                    self.board.set_piece(row, col+i, 'm')
+                    self.board.clear_adj_pos(row, col+i, 'm')
 
 
 if __name__ == "__main__":
