@@ -22,7 +22,7 @@ from search import (
 class BimaruState:
     state_id = 0
 
-    def __init__(self, board):
+    def __init__(self, board:Board):
         self.board = board
         self.id = BimaruState.state_id
         BimaruState.state_id += 1
@@ -30,7 +30,18 @@ class BimaruState:
     def __lt__(self, other):
         return self.id < other.id
     
-    # TODO: outros metodos da classe
+    def find_pos_boat(self, size:int, list_hipoteses):
+        #procurar horizontalmente
+        for row in range(10):
+            aux=self.board.list_linhas[row]
+            if aux<size:
+                break
+            for col in range(10-(size-1)):    
+                for i in range(size):
+                    if i==0:
+                        if self.board.adjacent_horizontal_values(row, col+i)[0] in ('L', 'm', 'M', 'r', 'R', 'a'):
+                            break
+                    
 
 
 class Board:
@@ -79,6 +90,7 @@ class Board:
         
     def ajeita_column(self, col:int):
         if self.posicoes_livres_col[col]==0:
+            self.colunas_ajeitadas[col]=True
             streak=0
             for i in range(10):
                 if self.get_value(i, col).isalpha() and self.get_value(i, col)!='W':
@@ -112,6 +124,7 @@ class Board:
 
     def ajeita_row(self, row:int):
         if self.posicoes_livres_linhas[row]==0:
+            self.linhas_ajeitadas[row]=True
             streak=0
             for i in range(10):
                 if self.get_value(row, i).isalpha() and self.get_value(row, i)!='W':
@@ -463,15 +476,15 @@ class Bimaru(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
         actions=[]
-        if self.board.boats[3]>0:
-            actions.append('colocar barco de 4')
-        if self.board.boats[2]>0:
-            actions.append('colocar barco de 3')
-        if self.board.boats[1]>0:
-            actions.append('colocar barco de 2')
-        if self.board.boats[0]>0:
-            actions.append('colocar barco de 1')
-
+        if state.board.boats[3]==1:
+            state.find_pos_boat(4, actions)
+        if state.board.boats[2]>=0:
+            state.find_pos_boat(3, actions)
+        if state.board.boats[1]>=-1:
+            state.find_pos_boat(2, actions)
+        if state.board.boats[0]>=-2:
+            state.find_pos_boat(1, actions)
+        
     def result(self, state: BimaruState, action):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
@@ -487,6 +500,8 @@ class Bimaru(Problem):
         completo=[0,0,0,0,0,0,0,0,0,0]
         if self.board.boats==[0,0,0,0] and self.board.posicoes_livres_col==completo and self.board.posicoes_livres_linhas==completo and self.board.a_ser_colocado_em_colunas==completo and self.board.a_ser_colocado_em_linhas==completo:
             return True
+        else:
+            return False
         
 
     def h(self, node: Node):
@@ -619,7 +634,9 @@ class Bimaru(Problem):
             if self.board.linhas_ajeitadas[i]==False:
                 self.board.ajeita_row(i)
             if self.board.colunas_ajeitadas[i]==False:
-                self.board.ajeita_column(i)
+                self.board.ajeita_column(i)     
+                                 
+                
     def place_boat(self, tamanho:int, sentido:str, row:int, col:int):
         if tamanho==1:
             self.board.set_piece(row, col, 'c')
@@ -646,6 +663,7 @@ class Bimaru(Problem):
                 else:
                     self.board.set_piece(row, col+i, 'm')
                     self.board.clear_adj_pos(row, col+i, 'm')
+        self.board.boats[tamanho]-=1
 
 
 if __name__ == "__main__":
@@ -656,6 +674,8 @@ if __name__ == "__main__":
     bimaru1.analisa_clues()
     bimaru1.ajeita_board()
     board.print_board()
+    #criacao do primeiro estado da procura
+    bimaru_initial_state=BimaruState(copy(bimaru1.board))
     
     
     # Usar uma técnica de procura para resolver a instância,
