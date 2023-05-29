@@ -38,10 +38,17 @@ class BimaruState:
                 break
             for col in range(10-(size-1)):    
                 for i in range(size):
-                    if i==0:
-                        if self.board.adjacent_horizontal_values(row, col+i)[0] in ('L', 'm', 'M', 'r', 'R', 'a'):
-                            break
-                    
+                    #if i==0:
+                    #    if self.board.adjacent_horizontal_values(row, col+i)[0] in ('L', 'm', 'M', 'r', 'R', 'a'):
+                    #        break
+                    if i==1 and self.board.adjacent_horizontal_values(row, col)[1] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[0] in ('-','.','W'):
+                        list_hipoteses.append('c', 1, row, col)
+                    if i==2 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1] in ('-','.','W'):
+                        list_hipoteses.append('h', 2, row, col)
+                    if i==3 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1] in ('-','.','W'):
+                        list_hipoteses.append('h', 3, row, col)
+                    if i==4 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+3)[1] in ('-','.','W'):
+                        list_hipoteses.append('h', 4, row, col)
 
 
 class Board:
@@ -117,7 +124,7 @@ class Board:
             elif streak==1:
                 if self.get_value(9, col) in ('m','a'):
                     if self.adjacent_horizontal_values(9, col)[0] in ('.', '?', 'W') and self.adjacent_horizontal_values(9, col)[1] in ('.', '?', 'W'):
-                        self.celulas[9][row]='c'
+                        self.celulas[9][col]='c'
                         self.boats[0]-=1
                     
     
@@ -675,7 +682,7 @@ if __name__ == "__main__":
     bimaru1.ajeita_board()
     board.print_board()
     #criacao do primeiro estado da procura
-    bimaru_initial_state=BimaruState(copy(bimaru1.board))
+    bimaru_initial_state=BimaruState(bimaru1.board)
     
     
     # Usar uma técnica de procura para resolver a instância,
