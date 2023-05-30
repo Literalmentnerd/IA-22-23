@@ -30,25 +30,7 @@ class BimaruState:
     def __lt__(self, other):
         return self.id < other.id
     
-    def find_pos_boat(self, size:int, list_hipoteses):
-        #procurar horizontalmente
-        for row in range(10):
-            aux=self.board.list_linhas[row]
-            if aux<size:
-                break
-            for col in range(10-(size-1)):    
-                for i in range(size):
-                    #if i==0:
-                    #    if self.board.adjacent_horizontal_values(row, col+i)[0] in ('L', 'm', 'M', 'r', 'R', 'a'):
-                    #        break
-                    if i==1 and self.board.adjacent_horizontal_values(row, col)[1] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[0] in ('-','.','W'):
-                        list_hipoteses.append('c', 1, row, col)
-                    if i==2 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1] in ('-','.','W'):
-                        list_hipoteses.append('h', 2, row, col)
-                    if i==3 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1] in ('-','.','W'):
-                        list_hipoteses.append('h', 3, row, col)
-                    if i==4 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+3)[1] in ('-','.','W'):
-                        list_hipoteses.append('h', 4, row, col)
+    
 
 
 class Board:
@@ -486,7 +468,25 @@ class Board:
             if self.colunas_ajeitadas[i]==False:
                 self.ajeita_column(i)     
 
-
+    def find_pos_boat(self, size:int, list_hipoteses):
+        #procurar horizontalmente
+        for row in range(10):
+            aux=self.board.list_linhas[row]
+            if aux<size:
+                break
+            for col in range(10-(size-1)):    
+                for i in range(size):
+                    #if i==0:
+                    #    if self.board.adjacent_horizontal_values(row, col+i)[0] in ('L', 'm', 'M', 'r', 'R', 'a'):
+                    #        break
+                    if i==1 and self.board.adjacent_horizontal_values(row, col)[1] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[0] in ('-','.','W'):
+                        list_hipoteses.append('c', 1, row, col)
+                    if i==2 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1] in ('-','.','W'):
+                        list_hipoteses.append('h', 2, row, col)
+                    if i==3 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1] in ('-','.','W'):
+                        list_hipoteses.append('h', 3, row, col)
+                    if i==4 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+3)[1] in ('-','.','W'):
+                        list_hipoteses.append('h', 4, row, col)
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -723,6 +723,7 @@ if __name__ == "__main__":
     board.print_board()
     #criacao do primeiro estado da procura
     bimaru_initial_state=BimaruState(bimaru1.board)
+    exit(0)
     
     
     # Usar uma técnica de procura para resolver a instância,
