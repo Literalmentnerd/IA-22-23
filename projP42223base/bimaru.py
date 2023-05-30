@@ -29,8 +29,6 @@ class BimaruState:
 
     def __lt__(self, other):
         return self.id < other.id
-    
-    
 
 
 class Board:
@@ -78,86 +76,101 @@ class Board:
         
         
     def ajeita_column(self, col:int):
-        if self.posicoes_livres_col[col]==0:
-            self.colunas_ajeitadas[col]=True
-            streak=0
-            linha_inicial=-1
-            for i in range(10):
-                if self.get_value(i, col).isalpha() and self.get_value(i, col)!='W':
-                    if linha_inicial==-1:
-                        linha_inicial=i
-                    streak+=1
-                    if self.get_value(i,col) in ('m','a'):
-                        self.celulas[i][col]='m'
-                        if self.adjacent_vertical_values(i, col)[1] in ('m','a','b','B', 'M') and self.adjacent_vertical_values(i, col)[0] in ('.', '?', 'W'):
-                            self.set_piece(i,col,'t')
-                        elif self.adjacent_vertical_values(i, col)[1] in ('?', '.', 'W') and self.adjacent_vertical_values(i, col)[0] in ('m','a','t','M','T'):
-                            self.set_piece(i,col,'b')
-                else:
-                    if streak>1:
-                        if not (streak, 'v', linha_inicial, col) in self.boats[streak-1]:
-                            self.boats[streak-1].append((streak, 'v', linha_inicial, col))
-                        #print("contei um barco de tamanho", streak, "na coluna ", col)
-                    elif streak==1:
-                        if self.get_value(i-1, col) in ('m','a'):
-                            if self.adjacent_horizontal_values(i-1, col)[0] in ('.', '?','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', '?','W'):
-                                self.celulas[i-1][col]='c'
-                                if not (1,'c',linha_inicial,col) in self.boats[0]:
-                                    self.boats[0].append((1,'c',linha_inicial,col))
-                    streak=0
-                    linha_inicial=-1
-            if streak>1:
-                if not (streak, 'v', linha_inicial,col) in self.boats[streak-1]:
-                    self.boats[streak-1].append((streak, 'v', linha_inicial, col))
-                #print("contei um barco de tamanho", streak, "na coluna ", col)
-            elif streak==1:
-                if self.get_value(9, col) in ('m','a'):
-                    if self.adjacent_horizontal_values(9, col)[0] in ('.', '?', 'W') and self.adjacent_horizontal_values(9, col)[1] in ('.', '?', 'W'):
-                        self.celulas[9][col]='c'
-                        if not (1, 'c', linha_inicial, col) in self.boats[0]:
-                            self.boats[0].append((1,'c',linha_inicial, col))
-                    
+        
+        self.colunas_ajeitadas[col]=True
+        streak=0
+        linha_inicial=-1
+        pode_contar=0
+        for i in range(10):
+            if self.get_value(i, col).isalpha() and self.get_value(i, col)!='W':
+                if linha_inicial==-1:
+                    linha_inicial=i
+                streak+=1
+                if self.get_value(i,col) in ('m','a'):
+                    self.celulas[i][col]='m'
+                    if self.adjacent_vertical_values(i, col)[1] in ('m','a','b','B', 'M') and self.adjacent_vertical_values(i, col)[0] in ('.', '?', 'W'):
+                        self.set_piece(i,col,'t')
+                        pode_contar+=1
+                    elif self.adjacent_vertical_values(i, col)[1] in ('?', '.', 'W') and self.adjacent_vertical_values(i, col)[0] in ('m','a','t','M','T'):
+                        self.set_piece(i,col,'b')
+                        pode_contar+=1
+                elif self.get_value(i, col) in ('t','T', 'b','B'):
+                    pode_contar+=1
+            else:
+                if streak>1:
+                    if not (streak, 'v', linha_inicial, col) in self.boats[streak-1] and pode_contar==2:
+                        self.boats[streak-1].append((streak, 'v', linha_inicial, col))
+                    #print("contei um barco de tamanho", streak, "na coluna ", col)
+                elif streak==1:
+                    if self.get_value(i-1, col) in ('m','a'):
+                        if self.adjacent_horizontal_values(i-1, col)[0] in ('.', '?','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', '?','W') and self.adjacent_horizontal_values(i-1,col)[0] in ('?','.', 'W') and self.adjacent_horizontal_values(i-1,col)[1] in ('?','.', 'W'):
+                            self.celulas[i-1][col]='c'
+                            if not (1,'c',linha_inicial,col) in self.boats[0]:
+                                self.boats[0].append((1,'c',linha_inicial,col))
+                pode_contar=0
+                streak=0
+                linha_inicial=-1
+        if streak>1:
+            if not (streak, 'v', linha_inicial,col) in self.boats[streak-1] and pode_contar==2:
+                self.boats[streak-1].append((streak, 'v', linha_inicial, col))
+            #print("contei um barco de tamanho", streak, "na coluna ", col)
+        elif streak==1:
+            if self.get_value(9, col) in ('m','a'):
+                if self.adjacent_horizontal_values(9, col)[0] in ('.', '?', 'W') and self.adjacent_horizontal_values(9, col)[1] in ('.', '?', 'W') and self.adjacent_vertical_values(i-1,col)[0] in ('?','.', 'W') and self.adjacent_vertical_values(i-1,col)[1] in ('?','.', 'W'):
+                    self.celulas[9][col]='c'
+                    if not (1, 'c', linha_inicial, col) in self.boats[0]:
+                        self.boats[0].append((1,'c',linha_inicial, col))
+        if self.posicoes_livres_col[col]>0:
+            self.colunas_ajeitadas[col]==False 
     
 
     def ajeita_row(self, row:int):
-        if self.posicoes_livres_linhas[row]==0:
-            self.linhas_ajeitadas[row]=True
-            streak=0
-            coluna_inicial=-1
-            for i in range(10):
-                if self.get_value(row, i).isalpha() and self.get_value(row, i)!='W':
-                    if coluna_inicial==-1:
-                        coluna_inicial=i
-                    streak+=1
-                    if self.get_value(row, i) in ('m', 'a'):
-                        self.celulas[row][i]='m'
-                        if self.adjacent_horizontal_values(row, i)[1] in ('m','a','r','M','R') and self.adjacent_horizontal_values(row, i)[0] in ('.', '?','W'):
-                            self.set_piece(row,i,'l')
-                        elif self.adjacent_horizontal_values(row, i)[1] in ('?','.','W') and self.adjacent_horizontal_values(row, i)[0] in ('m','a','l','L','A','M'):
-                            self.set_piece(row,i,'r')
-                else:
-                    if streak>1:
-                        if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1]:
-                            self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
-                        #print("contei um barco de tamanho", streak, "na linha ", row)
-                    elif streak==1:
-                        if self.get_value(row, i-1) in ('m','a'):
-                            if self.adjacent_vertical_values(row, i-1)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, i-1)[1] in ('.', '?', 'W'):
-                                self.celulas[row][i-1]='c'
-                                if not (1, 'c', row, coluna_inicial) in self.boats[0]:
-                                    self.boats[0].append((1, 'c', row, coluna_inicial))
-                    streak=0
-                    coluna_inicial=-1
-            if streak>1:
-                if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1]:
-                    self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
-                #print("contei um barco de tamanho", streak, "na linha ", row)
-            elif streak==1:
-                if self.get_value(row, 9) in ('m','a'):
-                    if self.adjacent_vertical_values(row, 9)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, 9)[1] in ('.','?', 'W'):
-                        self.celulas[row][9]='c'
-                        if not (1, 'c', row, coluna_inicial) in self.boats[0]:
-                            self.boats[0].append((1, 'c', row, coluna_inicial))
+        self.linhas_ajeitadas[row]=True
+        pode_contar=0
+        streak=0
+        coluna_inicial=-1
+        for i in range(10):
+            if self.get_value(row, i).isalpha() and self.get_value(row, i)!='W':
+                if coluna_inicial==-1:
+                    coluna_inicial=i
+                streak+=1
+                if self.get_value(row, i) in ('m', 'a'):
+                    self.celulas[row][i]='m'
+                    if self.adjacent_horizontal_values(row, i)[1] in ('m','a','r','M','R') and self.adjacent_horizontal_values(row, i)[0] in ('.', '?','W'):
+                        self.set_piece(row,i,'l')
+                        pode_contar+=1
+                    elif self.adjacent_horizontal_values(row, i)[1] in ('?','.','W') and self.adjacent_horizontal_values(row, i)[0] in ('m','a','l','L','A','M'):
+                        self.set_piece(row,i,'r')
+                        pode_contar+=1
+                elif self.get_value(row,i) in ('l','L', 'R','r'):
+                    pode_contar+=1
+            else:
+                if streak>1:
+                    if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1] and pode_contar==2:
+                        self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
+                    #print("contei um barco de tamanho", streak, "na linha ", row)
+                elif streak==1:
+                    if self.get_value(row, i-1) in ('m','a'):
+                        if self.adjacent_vertical_values(row, i-1)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, i-1)[1] in ('.', '?', 'W') and self.adjacent_horizontal_values(row, i-1)[0] in ('?','.', 'W') and self.adjacent_horizontal_values(row,i-1)[1] in ('?','.', 'W'):
+                            self.celulas[row][i-1]='c'
+                            if not (1, 'c', row, coluna_inicial) in self.boats[0]:
+                                self.boats[0].append((1, 'c', row, coluna_inicial))
+                pode_contar=0
+                streak=0
+                coluna_inicial=-1
+        if streak>1:
+            if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1] and pode_contar==2:
+                self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
+            #print("contei um barco de tamanho", streak, "na linha ", row)
+        elif streak==1:
+            if self.get_value(row, 9) in ('m','a'):
+                if self.adjacent_vertical_values(row, 9)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, 9)[1] in ('.','?', 'W')and self.adjacent_horizontal_values(row, i-1)[0] in ('?','.', 'W') and self.adjacent_horizontal_values(row,i-1)[1] in ('?','.', 'W'):
+                    self.celulas[row][9]='c'
+                    if not (1, 'c', row, coluna_inicial) in self.boats[0]:
+                        self.boats[0].append((1, 'c', row, coluna_inicial))
+        if self.posicoes_livres_linhas[row]>0:
+            self.linhas_ajeitadas[row]=False
+
     
     def clear_row(self, row:int):
         for i in range(10):
@@ -468,25 +481,20 @@ class Board:
             if self.colunas_ajeitadas[i]==False:
                 self.ajeita_column(i)     
 
-    def find_pos_boat(self, size:int, list_hipoteses):
+
+    #def find_pos_boat(self, size:int, list_hipoteses):
         #procurar horizontalmente
-        for row in range(10):
-            aux=self.board.list_linhas[row]
-            if aux<size:
-                break
-            for col in range(10-(size-1)):    
-                for i in range(size):
-                    #if i==0:
-                    #    if self.board.adjacent_horizontal_values(row, col+i)[0] in ('L', 'm', 'M', 'r', 'R', 'a'):
-                    #        break
-                    if i==1 and self.board.adjacent_horizontal_values(row, col)[1] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[0] in ('-','.','W'):
-                        list_hipoteses.append('c', 1, row, col)
-                    if i==2 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1] in ('-','.','W'):
-                        list_hipoteses.append('h', 2, row, col)
-                    if i==3 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1] in ('-','.','W'):
-                        list_hipoteses.append('h', 3, row, col)
-                    if i==4 and self.board.adjacent_horizontal_values(row, col)[0] in ('-','.','W') and self.board.adjacent_horizontal_values(row,col)[1]=='-' and self.board.adjacent_horizontal_values(row,col+1)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+2)[1]=='-' and self.board.adjacent_horizontal_valeus(row,col+3)[1] in ('-','.','W'):
-                        list_hipoteses.append('h', 4, row, col)
+        #for row in range(10):
+            #aux=self.list_linhas[row]
+            #if aux>=size:
+                #for col in range(10-(size-1)):
+                    #for i in range(size):
+                        #if i==0:
+                            #if self.adjacent_horizontal_values(row,col)[0] in ('.','-','?'):
+                        #if i==1:
+                        #if i==2:
+                        #if i==3:
+
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -724,7 +732,6 @@ if __name__ == "__main__":
     #criacao do primeiro estado da procura
     bimaru_initial_state=BimaruState(bimaru1.board)
     exit(0)
-    
     
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
