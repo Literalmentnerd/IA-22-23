@@ -719,7 +719,7 @@ if __name__ == "__main__":
     bimaru1.zero_in_board()
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
-    bimaru1.ajeita_board()
+    board.ajeita_board()
     board.print_board()
     #criacao do primeiro estado da procura
     bimaru_initial_state=BimaruState(bimaru1.board)
