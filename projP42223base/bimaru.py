@@ -22,7 +22,7 @@ from search import (
 class BimaruState:
     state_id = 0
 
-    def __init__(self, board:Board):
+    def __init__(self, board):
         self.board = board
         self.id = BimaruState.state_id
         BimaruState.state_id += 1
@@ -58,7 +58,7 @@ class Board:
         self.list_colunas=list_colunas
         self.celulas= [['-' for _ in range(10)] for _ in range(10)]
         self.lista_clues=list_clues
-        self.boats=[4,3,2,1]
+        self.boats=[[],[],[],[]]
         self.a_ser_colocado_em_linhas=list(list_linhas)
         self.a_ser_colocado_em_colunas=list(list_colunas)
         self.posicoes_livres_linhas=[10,10,10,10,10,10,10,10,10,10]
@@ -99,8 +99,11 @@ class Board:
         if self.posicoes_livres_col[col]==0:
             self.colunas_ajeitadas[col]=True
             streak=0
+            linha_inicial=-1
             for i in range(10):
                 if self.get_value(i, col).isalpha() and self.get_value(i, col)!='W':
+                    if linha_inicial==-1:
+                        linha_inicial=i
                     streak+=1
                     if self.get_value(i,col) in ('m','a'):
                         self.celulas[i][col]='m'
@@ -110,22 +113,27 @@ class Board:
                             self.set_piece(i,col,'b')
                 else:
                     if streak>1:
-                        self.boats[streak-1]-=1
+                        if not (streak, 'v', linha_inicial, col) in self.boats[streak-1]:
+                            self.boats[streak-1].append((streak, 'v', linha_inicial, col))
                         #print("contei um barco de tamanho", streak, "na coluna ", col)
                     elif streak==1:
                         if self.get_value(i-1, col) in ('m','a'):
                             if self.adjacent_horizontal_values(i-1, col)[0] in ('.', '?','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', '?','W'):
                                 self.celulas[i-1][col]='c'
-                                self.boats[0]-=1
+                                if not (1,'c',linha_inicial,col) in self.boats[0]:
+                                    self.boats[0].append((1,'c',linha_inicial,col))
                     streak=0
+                    linha_inicial=-1
             if streak>1:
-                self.boats[streak-1]-=1
+                if not (streak, 'v', linha_inicial,col) in self.boats[streak-1]:
+                    self.boats[streak-1].append((streak, 'v', linha_inicial, col))
                 #print("contei um barco de tamanho", streak, "na coluna ", col)
             elif streak==1:
                 if self.get_value(9, col) in ('m','a'):
                     if self.adjacent_horizontal_values(9, col)[0] in ('.', '?', 'W') and self.adjacent_horizontal_values(9, col)[1] in ('.', '?', 'W'):
                         self.celulas[9][col]='c'
-                        self.boats[0]-=1
+                        if not (1, 'c', linha_inicial, col) in self.boats[0]:
+                            self.boats[0].append((1,'c',linha_inicial, col))
                     
     
 
@@ -133,8 +141,11 @@ class Board:
         if self.posicoes_livres_linhas[row]==0:
             self.linhas_ajeitadas[row]=True
             streak=0
+            coluna_inicial=-1
             for i in range(10):
                 if self.get_value(row, i).isalpha() and self.get_value(row, i)!='W':
+                    if coluna_inicial==-1:
+                        coluna_inicial=i
                     streak+=1
                     if self.get_value(row, i) in ('m', 'a'):
                         self.celulas[row][i]='m'
@@ -144,22 +155,27 @@ class Board:
                             self.set_piece(row,i,'r')
                 else:
                     if streak>1:
-                        self.boats[streak-1]-=1
+                        if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1]:
+                            self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
                         #print("contei um barco de tamanho", streak, "na linha ", row)
                     elif streak==1:
                         if self.get_value(row, i-1) in ('m','a'):
                             if self.adjacent_vertical_values(row, i-1)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, i-1)[1] in ('.', '?', 'W'):
                                 self.celulas[row][i-1]='c'
-                                self.boats[0]-=1
+                                if not (1, 'c', row, coluna_inicial) in self.boats[0]:
+                                    self.boats[0].append((1, 'c', row, coluna_inicial))
                     streak=0
+                    coluna_inicial=-1
             if streak>1:
-                self.boats[streak-1]-=1
+                if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1]:
+                    self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
                 #print("contei um barco de tamanho", streak, "na linha ", row)
             elif streak==1:
                 if self.get_value(row, 9) in ('m','a'):
                     if self.adjacent_vertical_values(row, 9)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, 9)[1] in ('.','?', 'W'):
                         self.celulas[row][9]='c'
-                        self.boats[0]-=1
+                        if not (1, 'c', row, coluna_inicial) in self.boats[0]:
+                            self.boats[0].append((1, 'c', row, coluna_inicial))
     
     def clear_row(self, row:int):
         for i in range(10):
@@ -197,7 +213,7 @@ class Board:
                 self.a_ser_colocado_em_linhas[row]-=1
                 self.a_ser_colocado_em_colunas[column]-=1
             if piece=='c' or piece=='C':
-                self.boats[0]-=1
+                self.boats[0].append((1, 'c', row, column))
             if self.a_ser_colocado_em_colunas[column]==0 and self.posicoes_livres_col[column] >0:
                 self.clear_column(column)
             if self.a_ser_colocado_em_linhas[row]==0 and self.posicoes_livres_linhas[row]>0:
@@ -434,6 +450,43 @@ class Board:
                 self.clear_adj_pos(row,i,'a')
     
 
+    def place_boat(self, tamanho:int, sentido:str, row:int, col:int):
+        if tamanho==1:
+            self.set_piece(row, col, 'c')
+            return
+        if sentido=='v':
+            for i in range(tamanho):
+                if i==0:
+                    self.set_piece(row, col, 't')
+                    self.clear_adj_pos(row, col, 't')
+                elif i==tamanho-1:
+                    self.set_piece(row+i, col, 'b')
+                    self.clear_adj_pos(row+i, col, 'b')
+                else:
+                    self.set_piece(row+i, col, 'm')
+                    self.clear_adj_pos(row+i, col, 'm')
+        elif sentido=='h':
+            for i in range(tamanho):
+                if i==0:
+                    self.set_piece(row, col, 'l')
+                    self.clear_adj_pos(row, col, 'l')
+                elif i==tamanho-1:
+                    self.set_piece(row, col+i, 'r')
+                    self.clear_adj_pos(row, col+i, 'r')
+                else:
+                    self.set_piece(row, col+i, 'm')
+                    self.clear_adj_pos(row, col+i, 'm')
+        self.boats[tamanho-1].append((tamanho, sentido, row, col))
+
+   
+    def ajeita_board(self):
+        for i in range(10):
+            if self.linhas_ajeitadas[i]==False:
+                self.ajeita_row(i)
+            if self.colunas_ajeitadas[i]==False:
+                self.ajeita_column(i)     
+
+
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -483,13 +536,13 @@ class Bimaru(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
         actions=[]
-        if state.board.boats[3]==1:
+        if len(state.board.boats[3])<1:
             state.find_pos_boat(4, actions)
-        if state.board.boats[2]>=0:
+        if len(state.board.boats[2])<2:
             state.find_pos_boat(3, actions)
-        if state.board.boats[1]>=-1:
+        if len(state.board.boats[1])<3:
             state.find_pos_boat(2, actions)
-        if state.board.boats[0]>=-2:
+        if len(state.board.boats[0])<4:
             state.find_pos_boat(1, actions)
         
     def result(self, state: BimaruState, action):
@@ -505,7 +558,7 @@ class Bimaru(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
         completo=[0,0,0,0,0,0,0,0,0,0]
-        if self.board.boats==[0,0,0,0] and self.board.posicoes_livres_col==completo and self.board.posicoes_livres_linhas==completo and self.board.a_ser_colocado_em_colunas==completo and self.board.a_ser_colocado_em_linhas==completo:
+        if len(state.board.boats[0])==4 and len(state.board.boats[1])==3 and len(state.board.boats[2])==2 and len(state.board.boats[3])==1 and self.board.posicoes_livres_col==completo and self.board.posicoes_livres_linhas==completo and self.board.a_ser_colocado_em_colunas==completo and self.board.a_ser_colocado_em_linhas==completo:
             return True
         else:
             return False
@@ -544,7 +597,7 @@ class Bimaru(Problem):
                 if self.board.lista_clues[i][0]==8:
                     self.board.set_piece(9, self.board.lista_clues[i][1], 'b')
                     self.board.clear_adj_pos(9, self.board.lista_clues[i][1], 'b')
-                    self.board.boats[1]-=1
+                    self.board.boats[1].append((2, 'v', self.board.lista_clues[i][0], self.board.lista_clues[i][1]))
                 else:
                     self.board.set_piece(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
                     self.board.clear_adj_pos(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
@@ -552,7 +605,7 @@ class Bimaru(Problem):
                 if self.board.lista_clues[i][0]==1:
                     self.board.set_piece(0, self.board.lista_clues[i][1], 't')
                     self.board.clear_adj_pos(0, self.board.lista_clues[i][1], 't')
-                    self.board.boats[1]-=1
+                    self.board.boats[1].append((2, 'v', self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1]))
                 else:
                     self.board.set_piece(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
                     self.board.clear_adj_pos(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
@@ -560,7 +613,7 @@ class Bimaru(Problem):
                 if self.board.lista_clues[i][1]==8:
                     self.board.set_piece(self.board.lista_clues[i][0], 9, 'r')
                     self.board.clear_adj_pos(self.board.lista_clues[i][0], 9, 'r')
-                    self.board.boats[1]-=1
+                    self.board.boats[1].append((2, 'h', self.board.lista_clues[i][0], self.board.lista_clues[i][1]))
                 else:
                     self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
                     self.board.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
@@ -568,7 +621,7 @@ class Bimaru(Problem):
                 if self.board.lista_clues[i][1]==1:
                     self.board.set_piece(self.board.lista_clues[i][0], 0, 'l')
                     self.board.clear_adj_pos(self.board.lista_clues[i][0], 0, 'l')
-                    self.board.boats[1]-=1
+                    self.board.boats[1].append((2, 'h', self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1]))
                 else:
                     self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
                     self.board.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
@@ -609,17 +662,33 @@ class Bimaru(Problem):
                     if self.board.Meio_horizontal(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False:
                         if self.board.lista_clues[i][0]==1:
                             self.board.set_piece(0,self.board.lista_clues[i][1],'t')
-                            self.board.set_piece(2,self.board.lista_clues[i][1],'m')
-                            self.board.clear_adj_pos(2,self.board.lista_clues[i][1],'m')
+                            if self.board.get_value(3,self.board.lista_clues[i][1])=='.':
+                                self.board.set_piece(2,self.board.lista_clues[i][1],'b')
+                                self.board.clear_adj_pos(2,self.board.lista_clues[i][1],'b')
+                            else:
+                                self.board.set_piece(2,self.board.lista_clues[i][1],'m')
+                                self.board.clear_adj_pos(2,self.board.lista_clues[i][1],'m')
                         elif self.board.lista_clues[i][0]==8:
                             self.board.set_piece(9,self.board.lista_clues[i][1],'b')
-                            self.board.set_piece(7,self.board.lista_clues[i][1],'m')
-                            self.board.clear_adj_pos(7,self.board.lista_clues[i][1],'m')
+                            if self.board.get_value(6,self.board.lista_clues[i][1])=='.':
+                                self.board.set_piece(7,self.board.lista_clues[i][1],'t')
+                                self.board.clear_adj_pos(7,self.board.lista_clues[i][1],'t')
+                            else:
+                                self.board.set_piece(7,self.board.lista_clues[i][1],'m')
+                                self.board.clear_adj_pos(7,self.board.lista_clues[i][1],'m')
                         else:
-                            self.board.set_piece(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'m')
-                            self.board.clear_adj_pos(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'m')
-                            self.board.set_piece(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
-                            self.board.clear_adj_pos(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
+                            if self.board.get_value(self.board.lista_clues[i][0]-2,self.board.lista_clues[i][1])=='.':
+                                self.board.set_piece(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'t')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'t')
+                            else:
+                                self.board.set_piece(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'m')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0]-1,self.board.lista_clues[i][1],'m')
+                            if self.board.get_value(self.board.lista_clues[i][0]+2,self.board.lista_clues[i][1])=='.':
+                                self.board.set_piece(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'b')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'b')
+                            else:
+                                self.board.set_piece(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
                     elif self.board.Meio_vertical(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False:
                         if self.board.lista_clues[i][1]==1:
                             self.board.set_piece(self.board.lista_clues[i][0],0,'l')
@@ -630,48 +699,19 @@ class Bimaru(Problem):
                             self.board.set_piece(self.board.lista_clues[i][0],7,'m')
                             self.board.clear_adj_pos(self.board.lista_clues[i][1],7,'m')
                         else:
-                            self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
-                            self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
-                            self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
-                            self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
+                            if self.board.get_value(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-2)=='.':
+                                self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'l')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'l')
+                            else:
+                                self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]-1,'m')
+                            if self.board.get_value(self.board.lista_clues[i][0],self.board.lista_clues[i][1]+2)=='.':
+                                self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]+1,'r')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]+1,'r')
+                            else:
+                                self.board.set_piece(self.board.lista_clues[i][0],self.board.lista_clues[i][1]+1,'m')
+                                self.board.clear_adj_pos(self.board.lista_clues[i][0],self.board.lista_clues[i][1]+1,'m')
     
-   
-    def ajeita_board(self):
-        for i in range(10):
-            if self.board.linhas_ajeitadas[i]==False:
-                self.board.ajeita_row(i)
-            if self.board.colunas_ajeitadas[i]==False:
-                self.board.ajeita_column(i)     
-                                 
-                
-    def place_boat(self, tamanho:int, sentido:str, row:int, col:int):
-        if tamanho==1:
-            self.board.set_piece(row, col, 'c')
-            return
-        if sentido=='v':
-            for i in range(tamanho):
-                if i==0:
-                    self.board.set_piece(row, col, 't')
-                    self.board.clear_adj_pos(row, col, 't')
-                elif i==tamanho-1:
-                    self.board.set_piece(row+i, col, 'b')
-                    self.board.clear_adj_pos(row+i, col, 'b')
-                else:
-                    self.board.set_piece(row+i, col, 'm')
-                    self.board.clear_adj_pos(row+i, col, 'm')
-        elif sentido=='h':
-            for i in range(tamanho):
-                if i==0:
-                    self.board.set_piece(row, col, 'l')
-                    self.board.clear_adj_pos(row, col, 'l')
-                elif i==tamanho-1:
-                    self.board.set_piece(row, col+i, 'r')
-                    self.board.clear_adj_pos(row, col+i, 'r')
-                else:
-                    self.board.set_piece(row, col+i, 'm')
-                    self.board.clear_adj_pos(row, col+i, 'm')
-        self.board.boats[tamanho]-=1
-
 
 if __name__ == "__main__":
     board=Board.parse_instance()
