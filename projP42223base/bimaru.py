@@ -77,8 +77,6 @@ class Board:
         
         
     def ajeita_column(self, col:int):
-        
-        self.colunas_ajeitadas[col]=True
         streak=0
         linha_inicial=-1
         pode_contar=0
@@ -117,16 +115,15 @@ class Board:
             #print("contei um barco de tamanho", streak, "na coluna ", col)
         elif streak==1:
             if self.get_value(9, col) in ('m','a'):
-                if self.adjacent_horizontal_values(9, col)[0] in ('.', '?', 'W') and self.adjacent_horizontal_values(9, col)[1] in ('.', '?', 'W') and self.adjacent_vertical_values(i-1,col)[0] in ('?','.', 'W') and self.adjacent_vertical_values(i-1,col)[1] in ('?','.', 'W'):
+                if self.adjacent_horizontal_values(9, col)[0] in ('.', '?', 'W') and self.adjacent_horizontal_values(9, col)[1] in ('.', '?', 'W') and self.adjacent_vertical_values(9,col)[0] in ('?','.', 'W') and self.adjacent_vertical_values(9,col)[1] in ('?','.', 'W'):
                     self.celulas[9][col]='c'
                     if not (1, 'c', linha_inicial, col) in self.boats[0]:
                         self.boats[0].append((1,'c',linha_inicial, col))
-        if self.posicoes_livres_col[col]>0:
-            self.colunas_ajeitadas[col]==False 
+        if self.posicoes_livres_col[col]==0:
+            self.colunas_ajeitadas[col]=True 
     
 
     def ajeita_row(self, row:int):
-        self.linhas_ajeitadas[row]=True
         pode_contar=0
         streak=0
         coluna_inicial=-1
@@ -165,12 +162,12 @@ class Board:
             #print("contei um barco de tamanho", streak, "na linha ", row)
         elif streak==1:
             if self.get_value(row, 9) in ('m','a'):
-                if self.adjacent_vertical_values(row, 9)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, 9)[1] in ('.','?', 'W')and self.adjacent_horizontal_values(row, i-1)[0] in ('?','.', 'W') and self.adjacent_horizontal_values(row,i-1)[1] in ('?','.', 'W'):
+                if self.adjacent_vertical_values(row, 9)[0] in ('.', '?', 'W') and self.adjacent_vertical_values(row, 9)[1] in ('.','?', 'W')and self.adjacent_horizontal_values(row, 9)[0] in ('?','.', 'W') and self.adjacent_horizontal_values(row,9)[1] in ('?','.', 'W'):
                     self.celulas[row][9]='c'
                     if not (1, 'c', row, coluna_inicial) in self.boats[0]:
                         self.boats[0].append((1, 'c', row, coluna_inicial))
-        if self.posicoes_livres_linhas[row]>0:
-            self.linhas_ajeitadas[row]=False
+        if self.posicoes_livres_linhas[row]==0:
+            self.linhas_ajeitadas[row]=True
 
     
     def clear_row(self, row:int):
@@ -218,8 +215,9 @@ class Board:
                 self.completa_coluna(column)
             if self.a_ser_colocado_em_linhas[row]==self.posicoes_livres_linhas[row] and self.posicoes_livres_linhas[row]>0:
                 self.completa_row(row)
-        else: 
-            self.celulas[row][column]=piece
+        else:
+            if self.get_value(row,column).lower()!=piece: 
+                self.celulas[row][column]=piece
 
     def clear_adj_pos(self, row:int, col:int, piece):
         if piece=='M' or piece=='m':
