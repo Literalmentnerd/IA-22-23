@@ -39,6 +39,7 @@ class Board:
         self.celulas= [['-' for _ in range(10)] for _ in range(10)]
         self.lista_clues=list_clues
         self.boats=[[],[],[],[]]
+        self.lista_hipoteses=[]
         self.a_ser_colocado_em_linhas=list(list_linhas)
         self.a_ser_colocado_em_colunas=list(list_colunas)
         self.posicoes_livres_linhas=[10,10,10,10,10,10,10,10,10,10]
@@ -482,18 +483,48 @@ class Board:
                 self.ajeita_column(i)     
 
 
-    #def find_pos_boat(self, size:int, list_hipoteses):
+    def find_pos_boat_horizontal(self, size:int):
         #procurar horizontalmente
-        #for row in range(10):
-            #aux=self.list_linhas[row]
-            #if aux>=size:
-                #for col in range(10-(size-1)):
-                    #for i in range(size):
-                        #if i==0:
-                            #if self.adjacent_horizontal_values(row,col)[0] in ('.','-','?'):
-                        #if i==1:
-                        #if i==2:
-                        #if i==3:
+        flag = False
+        for row in range(10):
+            aux=self.list_linhas[row]
+            if aux>=size:
+                for col in range(10-(size-1)):
+                    for i in range(size):
+                        if i==0:
+                            if self.get_value(row,col) in ('.','W') or not self.adjacent_horizontal_values(row,col)[0] in ('-','.','?') or self.adjacent_horizontal_values(row,col)[i] in ('.','W'):
+                                break
+                        elif i==(size-1):
+                            if not self.adjacent_horizontal_values(row,col+i)[1] in ('-','.','?','W') or self.adjacent_vertical_values(row,col+1)[0].isalpha() or self.adjacent_vertical_values(row,col+1)[1].isalpha():
+                                break
+                        else:
+                            if self.get_value(row,col+i) in ('.','W') or self.adjacent_vertical_values(row,col+i)[0].isalpha() or self.adjacent_vertical_values(row,col+i)[1].isalpha():
+                                break
+                        flag = True
+                    if flag == True:
+                        self.lista_hipoteses.append((size, 'h', row, col))
+    
+
+    def find_pos_boat_vertical(self, size:int):
+        flag = False
+        for col in range(10):
+            aux=self.list_colunas[col]
+            if aux>=size:
+                for row in range(10-(size-1)):
+                    for i in range(size):
+                        if i==0:
+                            if not self.adjacent_vertical_values(row,col)[0] in ('-','.','?') and self.adjacent_vertical_values(row,col)[i] in ('.','W'):
+                                break
+                        elif i==(size-1):
+                            if not self.adjacent_vertical_values(row+i,col)[1] in ('-','.','W','?'):
+                                break
+                        else:
+                            if self.get_value(row+i,col) in ('.','W'):
+                                break
+                        flag = True
+                    if flag == True:
+                        self.lista_hipoteses.append((size, 'v', row, col))
+
 
     @staticmethod
     def parse_instance():
@@ -728,6 +759,8 @@ if __name__ == "__main__":
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
     board.ajeita_board()
+    board.find_pos_boat_horizontal(4)
+    board.find_pos_boat_vertical(4)
     board.print_board()
     #criacao do primeiro estado da procura
     bimaru_initial_state=BimaruState(bimaru1.board)
