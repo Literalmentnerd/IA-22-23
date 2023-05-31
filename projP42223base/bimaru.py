@@ -503,6 +503,7 @@ class Board:
                         flag = True
                     if flag == True:
                         self.lista_hipoteses.append((size, 'h', row, col))
+                        flag = False
     
 
     def find_pos_boat_vertical(self, size:int):
