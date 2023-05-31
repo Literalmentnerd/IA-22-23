@@ -514,17 +514,18 @@ class Board:
                 for row in range(10-(size-1)):
                     for i in range(size):
                         if i==0:
-                            if not self.adjacent_vertical_values(row,col)[0] in ('-','.','?') and self.adjacent_vertical_values(row,col)[i] in ('.','W'):
+                            if self.get_value(row,col) in ('.','W') or not self.adjacent_vertical_values(row,col)[0] in ('-','.','?') and self.adjacent_vertical_values(row,col)[i] in ('.','W'):
                                 break
                         elif i==(size-1):
-                            if not self.adjacent_vertical_values(row+i,col)[1] in ('-','.','W','?'):
+                            if self.get_value(row,col+i) in ('.','W') or not self.adjacent_vertical_values(row+i,col)[1] in ('-','.','W','?') or self.adjacent_horizontal_values(row,col+1)[0].isalpha() or self.adjacent_horizontal_values(row,col+i)[1].isalpha():
                                 break
                         else:
-                            if self.get_value(row+i,col) in ('.','W'):
+                            if self.get_value(row+i,col) in ('.','W') or self.adjacent_horizontal_values(row,col+i)[0].isalpha() or self.adjacent_horizontal_values(row,col+i)[1].isalpha():
                                 break
                         flag = True
                     if flag == True:
                         self.lista_hipoteses.append((size, 'v', row, col))
+                        flag = False
 
 
     @staticmethod
