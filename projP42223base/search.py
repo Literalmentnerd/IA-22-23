@@ -8,7 +8,7 @@ functions.
 
 import sys
 from collections import deque
-
+import numpy as np
 from utils import *
 
 

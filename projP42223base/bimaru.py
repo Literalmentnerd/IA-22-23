@@ -797,8 +797,12 @@ if __name__ == "__main__":
     #board.print_board()
     #criacao do primeiro estado da procura
     bimaru_initial_state=BimaruState(copy.copy(bimaru1.board))
-    
-    exit(0)
+    if bimaru1.goal_test(bimaru_initial_state):
+        bimaru_initial_state.board.print_board()
+        exit(0)
+    else:
+        exit(0)
+    #first_node=Node(bimaru_initial_state, None, None, 0)
     
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
