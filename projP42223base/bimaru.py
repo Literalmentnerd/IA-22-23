@@ -621,9 +621,9 @@ class Bimaru(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        state.board.place_boat(action[0],  action[1], action[2], action[3])
-        state.board.ajeita_board()
         new_state=BimaruState(copy.copy(state.board))
+        new_state.board.place_boat(action[0],  action[1], action[2], action[3])
+        new_state.board.ajeita_board()
         return new_state
 
     def goal_test(self, state: BimaruState):
@@ -797,7 +797,7 @@ if __name__ == "__main__":
     #board.print_board()
     #criacao do primeiro estado da procura
     bimaru_initial_state=BimaruState(copy.copy(bimaru1.board))
-    bimaru_initial_state.board.print_board()
+    
     exit(0)
     
     # Usar uma técnica de procura para resolver a instância,
