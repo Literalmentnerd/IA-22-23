@@ -6,6 +6,7 @@
 # 103262 Duarte Marques
 # 102820 Bernardo Augusto
 import numpy
+import copy
 import sys
 from search import (
     Problem,
@@ -621,7 +622,9 @@ class Bimaru(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         state.board.place_boat(action[0],  action[1], action[2], action[3])
-        return state
+        state.board.ajeita_board()
+        new_state=BimaruState(copy.copy(state.board))
+        return new_state
 
     def goal_test(self, state: BimaruState):
         """Retorna True se e só se o estado passado como argumento é
@@ -793,8 +796,8 @@ if __name__ == "__main__":
     #board.find_pos_boat(4)
     #board.print_board()
     #criacao do primeiro estado da procura
-    #bimaru_initial_state=BimaruState(bimaru1.board)
-    board.print_board()
+    bimaru_initial_state=BimaruState(copy.copy(bimaru1.board))
+    bimaru_initial_state.board.print_board()
     exit(0)
     
     # Usar uma técnica de procura para resolver a instância,
