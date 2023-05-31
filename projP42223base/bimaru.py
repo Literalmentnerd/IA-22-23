@@ -607,13 +607,13 @@ class Bimaru(Problem):
         partir do estado passado como argumento."""
         actions=[]
         if len(state.board.boats[3])<1:
-            actions=state.find_pos_boat(4, actions)
+            actions=state.board.find_pos_boat(4)
         elif len(state.board.boats[2])<2:
-            actions= state.find_pos_boat(3, actions)
+            actions= state.board.find_pos_boat(3)
         elif len(state.board.boats[1])<3:
-            actions=state.find_pos_boat(2, actions)
+            actions=state.board.find_pos_boat(2)
         elif len(state.board.boats[0])<4:
-            actions=state.find_pos_boat(1, actions)
+            actions=state.board.find_pos_boat(1)
         return actions
         
     def result(self, state: BimaruState, action):
@@ -793,15 +793,18 @@ if __name__ == "__main__":
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
     board.ajeita_board()
-    #board.find_pos_boat(4)
-    #board.print_board()
+    bimaru_initial_state=BimaruState(copy.copy(bimaru1.board))
+    acoes=bimaru1.actions(bimaru_initial_state)
+    new_state=bimaru1.result(bimaru_initial_state, acoes[0])
+    new_state.board.print_board()
+    
     #criacao do primeiro estado da procura
     bimaru_initial_state=BimaruState(copy.copy(bimaru1.board))
-    if bimaru1.goal_test(bimaru_initial_state):
-        bimaru_initial_state.board.print_board()
-        exit(0)
-    else:
-        exit(0)
+    #if bimaru1.goal_test(bimaru_initial_state):
+     #   bimaru_initial_state.board.print_board()
+      #  exit(0)
+    #else:
+    exit(0)
     #first_node=Node(bimaru_initial_state, None, None, 0)
     
     # Usar uma técnica de procura para resolver a instância,
