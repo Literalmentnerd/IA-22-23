@@ -512,7 +512,13 @@ class Board:
                         if self.get_value(row,col+i)=='-':
                             aux_a_colocar-=1
                     if aux_a_colocar>=0 and flag:
-                        hipoteses.append((size,'h',row,col))                 
+                        if size==1:
+                            if not (size, 'c', row,col) in self.boats[size-1]:
+                                hipoteses.append((size,'c',row,col))
+                        else:
+                            if not (size,'h', row,col) in self.boats[size-1]:
+                                hipoteses.append((size,'h',row,col))
+                                         
         
         #procura vertical
         for col in range(10):
@@ -531,7 +537,7 @@ class Board:
                             if self.get_value(row,col).isalpha() and self.get_value(row,col)!='W':
                                 aux-=1
                         if i==(size-1):
-                            if self.get_value(row,col+i) in ('.','W') or not self.adjacent_vertical_values(row+i,col)[1] in ('-','.','W','?'):
+                            if self.get_value(row+i,col) in ('.','W') or not self.adjacent_vertical_values(row+i,col)[1] in ('-','.','W','?'):
                                 flag=False
                                 break
                         if self.get_value(row+i,col) in ('.','W'):
@@ -540,7 +546,12 @@ class Board:
                         if self.get_value(row+i,col)=='-':
                             aux_a_colocar-=1
                     if aux_a_colocar>=0 and flag:
-                        hipoteses.append((size, 'v',row, col))
+                        if size==1:
+                            if not (size ,'c', row, col) in self.boats[size-1]:
+                                hipoteses.append((size,'c',row,col))
+                        else:
+                            if not (size ,'v', row, col) in self.boats[size-1]:
+                                hipoteses.append((size, 'v',row, col))
         return hipoteses
         
 
