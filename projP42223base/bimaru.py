@@ -39,7 +39,6 @@ class Board:
         self.celulas= [['-' for _ in range(10)] for _ in range(10)]
         self.lista_clues=list_clues
         self.boats=[[],[],[],[]]
-        self.lista_hipoteses=[]
         self.a_ser_colocado_em_linhas=list(list_linhas)
         self.a_ser_colocado_em_colunas=list(list_colunas)
         self.posicoes_livres_linhas=[10,10,10,10,10,10,10,10,10,10]
@@ -483,49 +482,67 @@ class Board:
                 self.ajeita_column(i)     
 
 
-    def find_pos_boat_horizontal(self, size:int):
+    def find_pos_boat(self, size:int):
         #procurar horizontalmente
-        flag = False
+        hipoteses=[]
         for row in range(10):
             aux=self.list_linhas[row]
             if aux>=size:
                 for col in range(10-(size-1)):
-                    for i in range(size):
+                    flag=True
+                    aux_a_colocar=self.a_ser_colocado_em_linhas[row]
+                    if aux<size:
+                        break
+                    for i in range(size): 
                         if i==0:
-                            if self.get_value(row,col) in ('.','W') or not self.adjacent_horizontal_values(row,col)[0] in ('-','.','?') or self.adjacent_horizontal_values(row,col)[i] in ('.','W'):
+                            if self.get_value(row,col) in ('.','W') or not self.adjacent_horizontal_values(row,col)[0] in ('-','.','?','W'):
+                                flag=False
                                 break
-                        elif i==(size-1):
-                            if self.get_value(row,col+i) in ('.','W') or not self.adjacent_horizontal_values(row,col+i)[1] in ('-','.','?','W') or self.adjacent_vertical_values(row,col+1)[0].isalpha() or self.adjacent_vertical_values(row,col+1)[1].isalpha():
+                            if self.get_value(row,col).isalpha() and self.get_value(row,col)!='W':
+                                aux-=1
+                                
+                        if i==(size-1):
+                            if self.get_value(row,col+i) in ('.','W') or not self.adjacent_horizontal_values(row,col+i)[1] in ('-','.','?','W'):
+                                flag=False 
                                 break
-                        else:
-                            if self.get_value(row,col+i) in ('.','W') or self.adjacent_vertical_values(row,col+i)[0].isalpha() or self.adjacent_vertical_values(row,col+i)[1].isalpha():
-                                break
-                        flag = True
-                    if flag == True:
-                        self.lista_hipoteses.append((size, 'h', row, col))
-                        flag = False
-    
-
-    def find_pos_boat_vertical(self, size:int):
-        flag = False
+                        if self.get_value(row,col+i) in ('.','W'):
+                            flag=False
+                            break    
+                         
+                        if self.get_value(row,col+i)=='-':
+                            aux_a_colocar-=1
+                    if aux_a_colocar>=0 and flag:
+                        hipoteses.append((size,'h',row,col))                 
+        
+        #procura vertical
         for col in range(10):
             aux=self.list_colunas[col]
             if aux>=size:
                 for row in range(10-(size-1)):
+                    flag=True
+                    aux_a_colocar=self.a_ser_colocado_em_colunas[col]
+                    if aux<size:
+                        break
                     for i in range(size):
                         if i==0:
-                            if self.get_value(row,col) in ('.','W') or not self.adjacent_vertical_values(row,col)[0] in ('-','.','?') and self.adjacent_vertical_values(row,col)[i] in ('.','W'):
+                            if self.get_value(row,col) in ('.','W') or not self.adjacent_vertical_values(row,col)[0] in ('-','.','?'):
+                                flag=False
                                 break
-                        elif i==(size-1):
-                            if self.get_value(row,col+i) in ('.','W') or not self.adjacent_vertical_values(row+i,col)[1] in ('-','.','W','?') or self.adjacent_horizontal_values(row,col+1)[0].isalpha() or self.adjacent_horizontal_values(row,col+i)[1].isalpha():
+                            if self.get_value(row,col).isalpha() and self.get_value(row,col)!='W':
+                                aux-=1
+                        if i==(size-1):
+                            if self.get_value(row,col+i) in ('.','W') or not self.adjacent_vertical_values(row+i,col)[1] in ('-','.','W','?'):
+                                flag=False
                                 break
-                        else:
-                            if self.get_value(row+i,col) in ('.','W') or self.adjacent_horizontal_values(row,col+i)[0].isalpha() or self.adjacent_horizontal_values(row,col+i)[1].isalpha():
-                                break
-                        flag = True
-                    if flag == True:
-                        self.lista_hipoteses.append((size, 'v', row, col))
-                        flag = False
+                        if self.get_value(row+i,col) in ('.','W'):
+                            flag=False
+                            break
+                        if self.get_value(row+i,col)=='-':
+                            aux_a_colocar-=1
+                    if aux_a_colocar>=0 and flag:
+                        hipoteses.append((size, 'v',row, col))
+        return hipoteses
+        
 
 
     @staticmethod
@@ -578,21 +595,22 @@ class Bimaru(Problem):
         partir do estado passado como argumento."""
         actions=[]
         if len(state.board.boats[3])<1:
-            state.find_pos_boat(4, actions)
-        if len(state.board.boats[2])<2:
-            state.find_pos_boat(3, actions)
-        if len(state.board.boats[1])<3:
-            state.find_pos_boat(2, actions)
-        if len(state.board.boats[0])<4:
-            state.find_pos_boat(1, actions)
+            actions=state.find_pos_boat(4, actions)
+        elif len(state.board.boats[2])<2:
+            actions= state.find_pos_boat(3, actions)
+        elif len(state.board.boats[1])<3:
+            actions=state.find_pos_boat(2, actions)
+        elif len(state.board.boats[0])<4:
+            actions=state.find_pos_boat(1, actions)
+        return actions
         
     def result(self, state: BimaruState, action):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO
-        pass
+        state.board.place_boat(action[0],  action[1], action[2], action[3])
+        return state
 
     def goal_test(self, state: BimaruState):
         """Retorna True se e só se o estado passado como argumento é
@@ -761,11 +779,11 @@ if __name__ == "__main__":
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
     board.ajeita_board()
-    board.find_pos_boat_horizontal(4)
-    board.find_pos_boat_vertical(4)
-    board.print_board()
+    #board.find_pos_boat(4)
+    #board.print_board()
     #criacao do primeiro estado da procura
-    bimaru_initial_state=BimaruState(bimaru1.board)
+    #bimaru_initial_state=BimaruState(bimaru1.board)
+    board.print_board()
     exit(0)
     
     # Usar uma técnica de procura para resolver a instância,
