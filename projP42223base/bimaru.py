@@ -495,7 +495,7 @@ class Board:
                             if self.get_value(row,col) in ('.','W') or not self.adjacent_horizontal_values(row,col)[0] in ('-','.','?') or self.adjacent_horizontal_values(row,col)[i] in ('.','W'):
                                 break
                         elif i==(size-1):
-                            if not self.adjacent_horizontal_values(row,col+i)[1] in ('-','.','?','W') or self.adjacent_vertical_values(row,col+1)[0].isalpha() or self.adjacent_vertical_values(row,col+1)[1].isalpha():
+                            if self.get_value(row,col+i) in ('.','W') or not self.adjacent_horizontal_values(row,col+i)[1] in ('-','.','?','W') or self.adjacent_vertical_values(row,col+1)[0].isalpha() or self.adjacent_vertical_values(row,col+1)[1].isalpha():
                                 break
                         else:
                             if self.get_value(row,col+i) in ('.','W') or self.adjacent_vertical_values(row,col+i)[0].isalpha() or self.adjacent_vertical_values(row,col+i)[1].isalpha():
