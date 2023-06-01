@@ -102,7 +102,7 @@ class Board:
                     #print("contei um barco de tamanho", streak, "na coluna ", col)
                 elif streak==1:
                     if self.get_value(i-1, col) in ('m','a'):
-                        if self.adjacent_horizontal_values(i-1, col)[0] in ('.', '?','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', '?','W') and self.adjacent_horizontal_values(i-1,col)[0] in ('?','.', 'W') and self.adjacent_horizontal_values(i-1,col)[1] in ('?','.', 'W'):
+                        if self.adjacent_horizontal_values(i-1, col)[0] in ('.', '?','W') and self.adjacent_horizontal_values(i-1, col)[1] in ('.', '?','W') and self.adjacent_vertical_values(i-1,col)[0] in ('?','.', 'W') and self.adjacent_vertical_values(i-1,col)[1] in ('?','.', 'W'):
                             self.celulas[i-1][col]='c'
                             if not (1,'c',linha_inicial,col) in self.boats[0]:
                                 self.boats[0].append((1,'c',linha_inicial,col))
@@ -552,8 +552,6 @@ class Board:
                             if not (size ,'v', row, col) in self.boats[size-1]:
                                 hipoteses.append((size, 'v',row, col))
         return hipoteses
-        
-
 
     @staticmethod
     def parse_instance():
@@ -620,7 +618,18 @@ class Bimaru(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        new_state=BimaruState(copy.copy(state.board))
+        new_state=copy.deepcopy(state)
+        new_state.board.celulas=copy.deepcopy(state.board.celulas)
+        new_state.board.a_ser_colocado_em_linhas=copy.deepcopy(state.board.a_ser_colocado_em_linhas)
+        new_state.board.a_ser_colocado_em_colunas=copy.deepcopy(state.board.a_ser_colocado_em_colunas)
+        new_state.board.posicoes_livres_linhas=copy.deepcopy(state.board.posicoes_livres_linhas)
+        new_state.board.posicoes_livres_col=copy.deepcopy(state.board.posicoes_livres_col)
+        new_state.board.boats=copy.deepcopy(state.board.boats)
+        new_state.board.linhas_ajeitadas=copy.deepcopy(state.board.linhas_ajeitadas)
+        new_state.board.colunas_ajeitadas=copy.deepcopy(state.board.colunas_ajeitadas)
+        new_state.board.list_linhas=copy.deepcopy(state.board.list_linhas)
+        new_state.board.list_colunas=copy.deepcopy(state.board.list_colunas)
+        new_state.board.lista_clues=copy.deepcopy(state.board.lista_clues)
         new_state.board.place_boat(action[0],  action[1], action[2], action[3])
         new_state.board.ajeita_board()
         return new_state
@@ -792,16 +801,13 @@ if __name__ == "__main__":
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
     board.ajeita_board()
-    bimaru1.initial=BimaruState(copy.copy(board))
+    bimaru1.initial=BimaruState(board)
     goal_node=depth_first_tree_search(bimaru1)
-    goal_node.state.board.print_board()
+    if goal_node==None:
+        print("¯\_(ツ)_/¯")
+    else:
+        goal_node.state.board.print_board()
     exit(0)
-    
-    #if bimaru1.goal_test(bimaru_initial_state):
-     #   bimaru_initial_state.board.print_board()
-      #  exit(0)
-    #else:
-    #first_node=Node(bimaru_initial_state, None, None, 0)
     
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
