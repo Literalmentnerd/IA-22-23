@@ -599,6 +599,7 @@ class Bimaru(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
         self.board=board
+        self.initial=0
 
     def actions(self, state: BimaruState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -791,18 +792,15 @@ if __name__ == "__main__":
     bimaru1.set_clues(board.lista_clues)
     bimaru1.analisa_clues()
     board.ajeita_board()
-    bimaru_initial_state=BimaruState(copy.copy(bimaru1.board))
-    acoes=bimaru1.actions(bimaru_initial_state)
-    new_state=bimaru1.result(bimaru_initial_state, acoes[0])
-    new_state.board.print_board()
+    bimaru1.initial=BimaruState(copy.copy(board))
+    goal_node=depth_first_tree_search(bimaru1)
+    goal_node.state.board.print_board()
+    exit(0)
     
-    #criacao do primeiro estado da procura
-    bimaru_initial_state=BimaruState(copy.copy(bimaru1.board))
     #if bimaru1.goal_test(bimaru_initial_state):
      #   bimaru_initial_state.board.print_board()
       #  exit(0)
     #else:
-    exit(0)
     #first_node=Node(bimaru_initial_state, None, None, 0)
     
     # Usar uma técnica de procura para resolver a instância,
