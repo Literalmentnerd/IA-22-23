@@ -619,6 +619,7 @@ class Bimaru(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         new_state=copy.deepcopy(state)
+        new_state.board=copy.deepcopy(state.board)
         new_state.board.celulas=copy.deepcopy(state.board.celulas)
         new_state.board.a_ser_colocado_em_linhas=copy.deepcopy(state.board.a_ser_colocado_em_linhas)
         new_state.board.a_ser_colocado_em_colunas=copy.deepcopy(state.board.a_ser_colocado_em_colunas)
@@ -630,7 +631,7 @@ class Bimaru(Problem):
         new_state.board.list_linhas=copy.deepcopy(state.board.list_linhas)
         new_state.board.list_colunas=copy.deepcopy(state.board.list_colunas)
         new_state.board.lista_clues=copy.deepcopy(state.board.lista_clues)
-        new_state.board.place_boat(action[0],  action[1], action[2], action[3])
+        new_state.board.place_boat(action[0], action[1], action[2], action[3])
         new_state.board.ajeita_board()
         return new_state
 
