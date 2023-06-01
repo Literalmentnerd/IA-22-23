@@ -618,7 +618,7 @@ class Bimaru(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        new_state=copy.deepcopy(state)
+        new_state=BimaruState(state.board)
         new_state.board=copy.deepcopy(state.board)
         new_state.board.celulas=copy.deepcopy(state.board.celulas)
         new_state.board.a_ser_colocado_em_linhas=copy.deepcopy(state.board.a_ser_colocado_em_linhas)
@@ -640,7 +640,7 @@ class Bimaru(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
         completo=[0,0,0,0,0,0,0,0,0,0]
-        if len(state.board.boats[0])==4 and len(state.board.boats[1])==3 and len(state.board.boats[2])==2 and len(state.board.boats[3])==1 and self.board.posicoes_livres_col==completo and self.board.posicoes_livres_linhas==completo and self.board.a_ser_colocado_em_colunas==completo and self.board.a_ser_colocado_em_linhas==completo:
+        if len(state.board.boats[0])==4 and len(state.board.boats[1])==3 and len(state.board.boats[2])==2 and len(state.board.boats[3])==1 and state.board.posicoes_livres_col==completo and state.board.posicoes_livres_linhas==completo and state.board.a_ser_colocado_em_colunas==completo and state.board.a_ser_colocado_em_linhas==completo:
             return True
         else:
             return False
