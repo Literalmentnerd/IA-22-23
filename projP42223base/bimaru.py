@@ -216,8 +216,12 @@ class Board:
             if self.a_ser_colocado_em_linhas[row]==self.posicoes_livres_linhas[row] and self.posicoes_livres_linhas[row]>0:
                 self.completa_row(row)
         else:
-            if self.get_value(row,column).lower()!=piece: 
+            if self.get_value(row,column).isalpha() and piece=='.':
+                return
+            elif self.get_value(row,column).lower()!=piece: 
                 self.celulas[row][column]=piece
+                if piece=='c' or piece=='C':
+                    self.boats[0].append((1,'c',row, column))
 
     def clear_adj_pos(self, row:int, col:int, piece):
         if piece=='M' or piece=='m':
@@ -677,36 +681,44 @@ class Bimaru(Problem):
         for i in range(len(self.board.lista_clues)):
             if self.board.lista_clues[i][2]=='T':
                 if self.board.lista_clues[i][0]==8:
-                    self.board.set_piece(9, self.board.lista_clues[i][1], 'b')
-                    self.board.clear_adj_pos(9, self.board.lista_clues[i][1], 'b')
-                    self.board.boats[1].append((2, 'v', self.board.lista_clues[i][0], self.board.lista_clues[i][1]))
+                    if self.board.adjacent_vertical_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[1]=='-':
+                        self.board.set_piece(9, self.board.lista_clues[i][1], 'b')
+                        self.board.clear_adj_pos(9, self.board.lista_clues[i][1], 'b')
+                        self.board.boats[1].append((2, 'v', self.board.lista_clues[i][0], self.board.lista_clues[i][1]))
                 else:
-                    self.board.set_piece(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
-                    self.board.clear_adj_pos(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
+                    if self.board.adjacent_vertical_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[1]=='-':
+                        self.board.set_piece(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
+                        self.board.clear_adj_pos(self.board.lista_clues[i][0]+1, self.board.lista_clues[i][1], 'm')
             elif self.board.lista_clues[i][2]=='B':
                 if self.board.lista_clues[i][0]==1:
-                    self.board.set_piece(0, self.board.lista_clues[i][1], 't')
-                    self.board.clear_adj_pos(0, self.board.lista_clues[i][1], 't')
-                    self.board.boats[1].append((2, 'v', self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1]))
+                    if self.board.adjacent_vertical_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[0]=='-':
+                        self.board.set_piece(0, self.board.lista_clues[i][1], 't')
+                        self.board.clear_adj_pos(0, self.board.lista_clues[i][1], 't')
+                        self.board.boats[1].append((2, 'v', self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1]))
                 else:
-                    self.board.set_piece(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
-                    self.board.clear_adj_pos(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
+                    if self.board.adjacent_vertical_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[0]=='-':
+                        self.board.set_piece(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
+                        self.board.clear_adj_pos(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1], 'm')
             elif self.board.lista_clues[i][2]=='L':
                 if self.board.lista_clues[i][1]==8:
-                    self.board.set_piece(self.board.lista_clues[i][0], 9, 'r')
-                    self.board.clear_adj_pos(self.board.lista_clues[i][0], 9, 'r')
-                    self.board.boats[1].append((2, 'h', self.board.lista_clues[i][0], self.board.lista_clues[i][1]))
+                    if self.board.adjacent_horizontal_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[1]=='-':
+                        self.board.set_piece(self.board.lista_clues[i][0], 9, 'r')
+                        self.board.clear_adj_pos(self.board.lista_clues[i][0], 9, 'r')
+                        self.board.boats[1].append((2, 'h', self.board.lista_clues[i][0], self.board.lista_clues[i][1]))
                 else:
-                    self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
-                    self.board.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
+                    if self.board.adjacent_horizontal_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[1]=='-':
+                        self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
+                        self.board.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]+1, 'm')
             elif self.board.lista_clues[i][2]=='R':
                 if self.board.lista_clues[i][1]==1:
-                    self.board.set_piece(self.board.lista_clues[i][0], 0, 'l')
-                    self.board.clear_adj_pos(self.board.lista_clues[i][0], 0, 'l')
-                    self.board.boats[1].append((2, 'h', self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1]))
+                    if self.board.adjacent_horizontal_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[0]=='-':
+                        self.board.set_piece(self.board.lista_clues[i][0], 0, 'l')
+                        self.board.clear_adj_pos(self.board.lista_clues[i][0], 0, 'l')
+                        self.board.boats[1].append((2, 'h', self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1]))
                 else:
-                    self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
-                    self.board.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
+                    if self.board.adjacent_horizontal_values(self.board.lista_clues[i][0], self.board.lista_clues[i][1])[0]=='-':
+                        self.board.set_piece(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
+                        self.board.clear_adj_pos(self.board.lista_clues[i][0], self.board.lista_clues[i][1]-1, 'm')
             elif self.board.lista_clues[i][2]=='M':
                 if self.board.lista_clues[i][0]==0 or self.board.lista_clues[i][0]==9:
                     if self.board.lista_clues[i][1]==1:
@@ -803,6 +815,9 @@ if __name__ == "__main__":
     bimaru1.analisa_clues()
     board.ajeita_board()
     bimaru1.initial=BimaruState(board)
+    if bimaru1.goal_test(bimaru1.initial):
+        bimaru1.initial.board.print_board()
+        exit(0)
     goal_node=depth_first_tree_search(bimaru1)
     if goal_node==None:
         print("¯\_(ツ)_/¯")
