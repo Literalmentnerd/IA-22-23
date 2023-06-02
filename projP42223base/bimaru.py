@@ -5,7 +5,7 @@
 # Grupo 30:
 # 103262 Duarte Marques
 # 102820 Bernardo Augusto
-import numpy
+import numpy as np
 import copy
 import sys
 from search import (
@@ -37,15 +37,15 @@ class Board:
     def __init__(self, list_linhas, list_colunas, list_clues):
         self.list_linhas=list_linhas
         self.list_colunas=list_colunas
-        self.celulas= [['-' for _ in range(10)] for _ in range(10)]
+        self.celulas= np.full((10,10),'-',dtype=np.str_) #[['-' for _ in range(10)] for _ in range(10)]
         self.lista_clues=list_clues
         self.boats=[[],[],[],[]]
         self.a_ser_colocado_em_linhas=list(list_linhas)
         self.a_ser_colocado_em_colunas=list(list_colunas)
-        self.posicoes_livres_linhas=[10,10,10,10,10,10,10,10,10,10]
-        self.posicoes_livres_col=[10,10,10,10,10,10,10,10,10,10]
-        self.colunas_ajeitadas=[False, False, False, False, False, False, False, False, False, False]
-        self.linhas_ajeitadas=[False, False, False, False, False, False, False, False, False, False]
+        self.posicoes_livres_linhas=np.full(10, 10) #[10,10,10,10,10,10,10,10,10,10]
+        self.posicoes_livres_col=np.full(10,10) #[10,10,10,10,10,10,10,10,10,10]
+        self.colunas_ajeitadas=np.full(10,False) #[False, False, False, False, False, False, False, False, False, False]
+        self.linhas_ajeitadas=np.full(10,False) #[False, False, False, False, False, False, False, False, False, False]
         
         
 
@@ -643,8 +643,8 @@ class Bimaru(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        completo=[0,0,0,0,0,0,0,0,0,0]
-        if len(state.board.boats[0])==4 and len(state.board.boats[1])==3 and len(state.board.boats[2])==2 and len(state.board.boats[3])==1 and state.board.posicoes_livres_col==completo and state.board.posicoes_livres_linhas==completo and state.board.a_ser_colocado_em_colunas==completo and state.board.a_ser_colocado_em_linhas==completo:
+        completo=np.full(10,0) #[0,0,0,0,0,0,0,0,0,0]
+        if len(state.board.boats[0])==4 and len(state.board.boats[1])==3 and len(state.board.boats[2])==2 and len(state.board.boats[3])==1 and np.all(state.board.posicoes_livres_col == completo) and np.all(state.board.posicoes_livres_linhas == completo) and np.all(state.board.a_ser_colocado_em_colunas == completo) and np.all(state.board.a_ser_colocado_em_linhas == completo): #state.board.posicoes_livres_col==completo and state.board.posicoes_livres_linhas==completo and state.board.a_ser_colocado_em_colunas==completo and state.board.a_ser_colocado_em_linhas==completo:
             return True
         else:
             return False
