@@ -37,15 +37,15 @@ class Board:
     def __init__(self, list_linhas, list_colunas, list_clues):
         self.list_linhas=list_linhas
         self.list_colunas=list_colunas
-        self.celulas= np.full((10,10),'-',dtype=np.str_) #[['-' for _ in range(10)] for _ in range(10)]
+        self.celulas=[['-' for _ in range(10)] for _ in range(10)]
         self.lista_clues=list_clues
         self.boats=[[],[],[],[]]
         self.a_ser_colocado_em_linhas=list(list_linhas)
         self.a_ser_colocado_em_colunas=list(list_colunas)
-        self.posicoes_livres_linhas=np.full(10, 10) #[10,10,10,10,10,10,10,10,10,10]
-        self.posicoes_livres_col=np.full(10,10) #[10,10,10,10,10,10,10,10,10,10]
-        self.colunas_ajeitadas=np.full(10,False) #[False, False, False, False, False, False, False, False, False, False]
-        self.linhas_ajeitadas=np.full(10,False) #[False, False, False, False, False, False, False, False, False, False]
+        self.posicoes_livres_linhas=[10,10,10,10,10,10,10,10,10,10]
+        self.posicoes_livres_col=[10,10,10,10,10,10,10,10,10,10]
+        self.colunas_ajeitadas=[False, False, False, False, False, False, False, False, False, False]
+        self.linhas_ajeitadas=[False, False, False, False, False, False, False, False, False, False]
         
         
 
@@ -96,7 +96,7 @@ class Board:
                 elif self.get_value(i, col) in ('t','T', 'b','B'):
                     pode_contar+=1
             else:
-                if streak>1:
+                if streak>1 and streak<=4:
                     if not (streak, 'v', linha_inicial, col) in self.boats[streak-1] and pode_contar==2:
                         self.boats[streak-1].append((streak, 'v', linha_inicial, col))
                     #print("contei um barco de tamanho", streak, "na coluna ", col)
@@ -109,7 +109,7 @@ class Board:
                 pode_contar=0
                 streak=0
                 linha_inicial=-1
-        if streak>1:
+        if streak>1 and streak<=4:
             if not (streak, 'v', linha_inicial,col) in self.boats[streak-1] and pode_contar==2:
                 self.boats[streak-1].append((streak, 'v', linha_inicial, col))
             #print("contei um barco de tamanho", streak, "na coluna ", col)
@@ -143,7 +143,7 @@ class Board:
                 elif self.get_value(row,i) in ('l','L', 'R','r'):
                     pode_contar+=1
             else:
-                if streak>1:
+                if streak>1 and streak<=4:
                     if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1] and pode_contar==2:
                         self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
                     #print("contei um barco de tamanho", streak, "na linha ", row)
@@ -156,7 +156,7 @@ class Board:
                 pode_contar=0
                 streak=0
                 coluna_inicial=-1
-        if streak>1:
+        if streak>1 and streak<=4:
             if not (streak, 'h', row, coluna_inicial) in self.boats[streak-1] and pode_contar==2:
                 self.boats[streak-1].append((streak, 'h', row, coluna_inicial))
             #print("contei um barco de tamanho", streak, "na linha ", row)
@@ -190,11 +190,11 @@ class Board:
                 
     
     def Meio_vertical(self, row:int, col:int):
-        return (self.adjacent_horizontal_values(row, col)[0]=='.' or  self.adjacent_horizontal_values(row, col)[1]=='.'or self.adjacent_vertical_values(row, col)[0].isalpha() or self.adjacent_vertical_values(row, col)[1].isalpha())
+        return (self.adjacent_horizontal_values(row, col)[0] in ('.','W') or self.adjacent_horizontal_values(row, col)[1] in ('.','W') or not self.adjacent_vertical_values(row, col)[0] in ('.','W','-') or not self.adjacent_vertical_values(row, col)[1] in ('.','W','-') or (self.a_ser_colocado_em_linhas[row]<2 and self.a_ser_colocado_em_colunas[col]>2))
     
 
     def Meio_horizontal(self, row:int, col:int):
-        return (self.adjacent_horizontal_values(row, col)[0].isalpha() or  self.adjacent_horizontal_values(row, col)[1].isalpha() or self.adjacent_vertical_values(row, col)[0]=='.' or self.adjacent_vertical_values(row, col)[1]=='.') 
+        return (not self.adjacent_horizontal_values(row, col)[0] in ('.','W','-') or not self.adjacent_horizontal_values(row, col)[1] in ('.','W', '-') or self.adjacent_vertical_values(row, col)[0] in ('.','W') or self.adjacent_vertical_values(row, col)[1] in ('.','W') or (self.a_ser_colocado_em_linhas[row]>2 and self.a_ser_colocado_em_colunas[col]<2)) 
     
 
     def set_piece(self, row:int, column:int ,piece:str):
@@ -652,8 +652,11 @@ class Bimaru(Problem):
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-        # TODO
-        pass
+        falta_colocar=0
+        for i in range(10):
+            falta_colocar+=node.state.board.a_ser_colocado_em_linhas[i]
+            falta_colocar+=node.state.board.a_ser_colocado_em_colunas[i]
+        return falta_colocar
     
     def zero_in_board(self):
         for i in range(10):
@@ -753,7 +756,7 @@ class Bimaru(Problem):
                         self.board.set_piece(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1],'m')
                         self.board.clear_adj_pos(self.board.lista_clues[i][0]-1, self.board.lista_clues[i][1],'m')
                 else:
-                    if self.board.Meio_horizontal(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False:
+                    if self.board.Meio_horizontal(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False and self.board.Meio_vertical(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==True:
                         if self.board.lista_clues[i][0]==1:
                             self.board.set_piece(0,self.board.lista_clues[i][1],'t')
                             if self.board.get_value(3,self.board.lista_clues[i][1])=='.':
@@ -783,7 +786,7 @@ class Bimaru(Problem):
                             else:
                                 self.board.set_piece(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
                                 self.board.clear_adj_pos(self.board.lista_clues[i][0]+1,self.board.lista_clues[i][1],'m')
-                    elif self.board.Meio_vertical(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False:
+                    elif self.board.Meio_vertical(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==False and self.board.Meio_horizontal(self.board.lista_clues[i][0],self.board.lista_clues[i][1])==True:
                         if self.board.lista_clues[i][1]==1:
                             self.board.set_piece(self.board.lista_clues[i][0],0,'l')
                             self.board.set_piece(self.board.lista_clues[i][0],2,'m')
@@ -818,7 +821,7 @@ if __name__ == "__main__":
     if bimaru1.goal_test(bimaru1.initial):
         bimaru1.initial.board.print_board()
         exit(0)
-    goal_node=depth_first_tree_search(bimaru1)
+    goal_node=astar_search(bimaru1)
     if goal_node==None:
         print("¯\_(ツ)_/¯")
     else:
